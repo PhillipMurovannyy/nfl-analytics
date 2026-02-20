@@ -1,0 +1,352 @@
+<!-- External Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<div id="nfl-team-dash">
+
+  <!-- Header -->
+  <div class="ntd-header">
+    <h2 class="ntd-title">NFL Team Dashboard</h2>
+    <img src="https://xepanalytics.com/wp-content/uploads/2024/12/Logo-PNG-2.png" alt="xEP Analytics" class="ntd-logo">
+  </div>
+
+  <!-- Controls -->
+  <div class="ntd-controls">
+    <div class="ntd-toggle-group">
+      <button class="ntd-toggle active" data-side="OFF">Offense</button>
+      <button class="ntd-toggle" data-side="DEF">Defense</button>
+    </div>
+    <div class="ntd-view-group">
+      <button class="ntd-view active" data-view="Base">Base</button>
+      <button class="ntd-view" data-view="Advanced">Advanced</button>
+      <button class="ntd-view" data-view="Passing">Passing</button>
+      <button class="ntd-view" data-view="Rushing">Rushing</button>
+    </div>
+  </div>
+
+  <!-- Description box -->
+  <div class="ntd-desc">
+    <p>Team-level efficiency metrics season to date.</p>
+    <p><strong>Success Rates</strong> = % of plays with positive EPA&nbsp;&nbsp;|&nbsp;&nbsp;Click any column header to sort</p>
+  </div>
+
+  <!-- Table -->
+  <div class="ntd-table-wrap">
+    <div class="ntd-table-scroll">
+      <table id="ntdTable">
+        <thead><tr id="ntdHead"></tr></thead>
+        <tbody id="ntdBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+#nfl-team-dash *,#nfl-team-dash *::before,#nfl-team-dash *::after{box-sizing:border-box;margin:0;padding:0;}
+#nfl-team-dash{
+  font-family:'Roboto',sans-serif;
+  background:#0e1117;
+  color:#fff;
+  padding:20px;
+  border-radius:10px;
+  max-width:1200px;
+  margin:auto;
+}
+
+/* ── Header ── */
+.ntd-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.ntd-title{font-weight:900;font-size:24px;color:#fff;}
+.ntd-logo{
+  height:auto;
+  width:120px;
+  max-height:55px;
+  object-fit:contain;
+  filter:brightness(1.3);
+}
+
+/* ── Controls ── */
+.ntd-controls{
+  display:flex;align-items:center;
+  gap:32px;margin-bottom:14px;flex-wrap:wrap;
+}
+.ntd-toggle-group,.ntd-view-group{
+  background:#161b22;
+  border:1px solid #2d333b;
+  border-radius:6px;
+  overflow:hidden;
+}
+.ntd-toggle,.ntd-view{
+  font-family:'Roboto',sans-serif;
+  font-size:18px;font-weight:700;
+  padding:11px 46px;
+  border:none;
+  cursor:pointer;
+  color:#8b949e;
+  background:transparent;
+  transition:background .2s,color .2s;
+  border-right:2px solid #2d333b;
+}
+.ntd-toggle:last-child,.ntd-view:last-child{border-right:none;}
+.ntd-toggle:hover:not(.active),.ntd-view:hover:not(.active){color:#c9d1d9;background:#1c2129;}
+
+.ntd-toggle.active[data-side="OFF"]{background:#14532d;color:#fff;}
+.ntd-toggle.active[data-side="DEF"]{background:#7f1d1d;color:#fff;}
+.ntd-view.active{background:#2d333b;color:#fff;}
+
+/* ── Description Box ── */
+.ntd-desc{
+  background:#161b22;
+  border:1px solid #2d333b;
+  border-radius:8px;
+  padding:14px 18px;
+  margin-bottom:14px;
+  font-size:14px;color:#8b949e;line-height:1.6;
+}
+.ntd-desc strong{color:#c9d1d9;}
+
+/* ── Table ── */
+.ntd-table-wrap{
+  border:1px solid #2d333b;
+  border-radius:8px;
+  overflow:hidden;
+}
+.ntd-table-scroll{
+  max-height:none;
+  overflow-x:auto;
+}
+.ntd-table-scroll::-webkit-scrollbar{width:6px;height:6px;}
+.ntd-table-scroll::-webkit-scrollbar-track{background:#0e1117;}
+.ntd-table-scroll::-webkit-scrollbar-thumb{background:#2d333b;border-radius:3px;}
+
+#ntdTable{width:100%;border-collapse:collapse;text-align:center;}
+
+#ntdTable thead{position:sticky;top:0;z-index:10;}
+#ntdTable th{
+  padding:14px 12px;
+  font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:#8b949e;background:#161b22;
+  border-bottom:2px solid #2d333b;
+  cursor:pointer;white-space:nowrap;user-select:none;
+  transition:background .15s,color .15s;
+}
+#ntdTable th:hover{background:#1c2129;color:#fff;}
+#ntdTable th.sort-asc::after{content:' ▲';font-size:10px;color:#f97316;}
+#ntdTable th.sort-desc::after{content:' ▼';font-size:10px;color:#f97316;}
+
+#ntdTable td{
+  padding:10px 10px;
+  font-size:18px;font-weight:700;color:#fff;
+  border-bottom:1px solid #1c2129;
+  white-space:nowrap;
+}
+#ntdTable tbody tr{background:#0e1117;transition:background .15s;}
+#ntdTable tbody tr:nth-child(even){background:#121820;}
+#ntdTable tbody tr:hover{background:#1a2233;}
+
+.ntd-rank{
+  font-size:14px;color:#484f58;font-weight:700;
+  width:44px;min-width:44px;
+}
+.ntd-team{
+  display:flex;align-items:center;gap:12px;
+  padding-left:10px;text-align:left;min-width:180px;
+}
+.ntd-team img{
+  width:42px;height:42px;object-fit:contain;
+  filter:drop-shadow(0 0 2px rgba(0,0,0,.6));
+}
+.ntd-team span{font-size:16px;font-weight:800;color:#c9d1d9;letter-spacing:.3px;}
+
+/* ── Responsive ── */
+@media(max-width:800px){
+  #nfl-team-dash{padding:12px 8px;}
+  .ntd-title{font-size:18px;}
+  .ntd-logo{width:90px;max-height:40px;}
+  .ntd-controls{flex-direction:column;align-items:stretch;}
+  .ntd-toggle-group,.ntd-view-group{justify-content:center;}
+  .ntd-toggle,.ntd-view{padding:10px 18px;font-size:14px;}
+  #ntdTable td{font-size:14px;padding:8px 6px;}
+  #ntdTable th{font-size:12px;padding:10px 8px;}
+  .ntd-team{min-width:130px;gap:8px;}
+  .ntd-team img{width:30px;height:30px;}
+  .ntd-team span{font-size:13px;}
+  .ntd-rank{font-size:12px;width:32px;min-width:32px;}
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+
+  const CSV_URLS={
+    OFF:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1240443404&single=true&output=csv",
+    DEF:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1369376911&single=true&output=csv"
+  };
+
+  const views={
+    Base:["Team","plays","total_yards","yards_per_play","epa_per_play","success_rate","third_down_conversion_rate"],
+    Advanced:["Team","explosive_play_rate","early_down_success_rate","score_play_rate","negative_play_rate","red_zone_play_rate","red_zone_success_rate"],
+    Passing:["Team","plays","pass_rate","pass_success","pass_epa","air_yards_per_attempt","sack_rate","yac_per_completion","explosive_pass_rate","interception_rate"],
+    Rushing:["Team","plays","rush_play_pct","rush_epa","rush_success","explosive_rush_rate"]
+  };
+
+  const displayNames={
+    Team:"Team",plays:"Plays",total_yards:"Total Yards",yards_per_play:"Yards / Play",
+    epa_per_play:"EPA / Play",success_rate:"Success %",third_down_conversion_rate:"3rd Down %",
+    explosive_play_rate:"Explosive Play %",early_down_success_rate:"Early Down Success %",
+    score_play_rate:"Score Play %",negative_play_rate:"Negative Play %",
+    red_zone_play_rate:"RZ Play %",red_zone_success_rate:"RZ Success %",
+    pass_rate:"Pass %",pass_success:"Pass Success %",pass_epa:"Pass EPA",
+    air_yards_per_attempt:"ADOT",sack_rate:"Sack %",yac_per_completion:"YAC / Comp",
+    explosive_pass_rate:"Explosive Pass %",interception_rate:"INT %",
+    rush_play_pct:"Rush %",rush_epa:"Rush EPA",rush_success:"Rush Success %",
+    explosive_rush_rate:"Explosive Rush %"
+  };
+
+  const teamLogos={
+    ARI:"https://a.espncdn.com/i/teamlogos/nfl/500/ari.png",ATL:"https://a.espncdn.com/i/teamlogos/nfl/500/atl.png",
+    BAL:"https://a.espncdn.com/i/teamlogos/nfl/500/bal.png",BUF:"https://a.espncdn.com/i/teamlogos/nfl/500/buf.png",
+    CAR:"https://a.espncdn.com/i/teamlogos/nfl/500/car.png",CHI:"https://a.espncdn.com/i/teamlogos/nfl/500/chi.png",
+    CIN:"https://a.espncdn.com/i/teamlogos/nfl/500/cin.png",CLE:"https://a.espncdn.com/i/teamlogos/nfl/500/cle.png",
+    DAL:"https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",DEN:"https://a.espncdn.com/i/teamlogos/nfl/500/den.png",
+    DET:"https://a.espncdn.com/i/teamlogos/nfl/500/det.png",GB:"https://a.espncdn.com/i/teamlogos/nfl/500/gb.png",
+    HOU:"https://a.espncdn.com/i/teamlogos/nfl/500/hou.png",IND:"https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
+    JAX:"https://a.espncdn.com/i/teamlogos/nfl/500/jax.png",KC:"https://a.espncdn.com/i/teamlogos/nfl/500/kc.png",
+    LV:"https://a.espncdn.com/i/teamlogos/nfl/500/lv.png",LAC:"https://a.espncdn.com/i/teamlogos/nfl/500/lac.png",
+    LAR:"https://a.espncdn.com/i/teamlogos/nfl/500/lar.png",LA:"https://a.espncdn.com/i/teamlogos/nfl/500/lar.png",
+    MIA:"https://a.espncdn.com/i/teamlogos/nfl/500/mia.png",MIN:"https://a.espncdn.com/i/teamlogos/nfl/500/min.png",
+    NE:"https://a.espncdn.com/i/teamlogos/nfl/500/ne.png",NO:"https://a.espncdn.com/i/teamlogos/nfl/500/no.png",
+    NYG:"https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png",NYJ:"https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png",
+    PHI:"https://a.espncdn.com/i/teamlogos/nfl/500/phi.png",PIT:"https://a.espncdn.com/i/teamlogos/nfl/500/pit.png",
+    SEA:"https://a.espncdn.com/i/teamlogos/nfl/500/sea.png",SF:"https://a.espncdn.com/i/teamlogos/nfl/500/sf.png",
+    TB:"https://a.espncdn.com/i/teamlogos/nfl/500/tb.png",TEN:"https://a.espncdn.com/i/teamlogos/nfl/500/ten.png",
+    WAS:"https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png",WSH:"https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png"
+  };
+
+  const offReverseMetrics=["negative_play_rate","interception_rate","sack_rate"];
+  const defBetterHigh=["sack_rate","interception_rate","negative_play_rate"];
+
+  let currentSide="OFF";
+  let currentView="Base";
+  let dataStore={OFF:[],DEF:[]};
+  let sortState={col:null,asc:false};
+
+  const thead=document.getElementById("ntdHead");
+  const tbody=document.getElementById("ntdBody");
+
+  let loaded=0;
+  Object.keys(CSV_URLS).forEach(side=>{
+    Papa.parse(CSV_URLS[side],{
+      download:true,header:true,
+      complete:function(res){
+        dataStore[side]=res.data.filter(r=>r.Team);
+        loaded++;
+        if(loaded===2) renderTable();
+      }
+    });
+  });
+
+  function colorScale(val,min,max,side,col){
+    if(isNaN(val)) return "transparent";
+    if(col==="plays"||col==="total_yards") return "transparent";
+
+    let pct=(val-min)/(max-min||1);
+    let higherIsGood;
+    if(side==="OFF") higherIsGood=!offReverseMetrics.includes(col);
+    else higherIsGood=defBetterHigh.includes(col);
+    if(!higherIsGood) pct=1-pct;
+
+    const colorSteps=["#c62828","#fb8c00","#f9a825","#66bb6a","#2e7d32"];
+    if(pct>=0.8) return colorSteps[4];
+    if(pct>=0.6) return colorSteps[3];
+    if(pct>=0.4) return colorSteps[2];
+    if(pct>=0.2) return colorSteps[1];
+    return colorSteps[0];
+  }
+
+  function fmt(v,col){
+    const n=parseFloat(v);
+    if(isNaN(n)) return "–";
+    if(col==="plays") return n.toFixed(0);
+    if(col==="total_yards") return n.toLocaleString();
+    if(col.includes("epa")) return n>=0?"+"+n.toFixed(3):n.toFixed(3);
+    if(Math.abs(n)<1 && Math.abs(n)>0.001) return (n*100).toFixed(1)+"%";
+    return n.toFixed(2);
+  }
+
+  function renderTable(){
+    const cols=views[currentView];
+    const data=[...dataStore[currentSide]];
+
+    if(sortState.col && cols.includes(sortState.col)){
+      data.sort((a,b)=>{
+        const A=parseFloat(a[sortState.col])||0;
+        const B=parseFloat(b[sortState.col])||0;
+        return sortState.asc?A-B:B-A;
+      });
+    }
+
+    const stats={};
+    cols.forEach(k=>{
+      if(k==="Team") return;
+      const vals=data.map(d=>parseFloat(d[k])).filter(x=>!isNaN(x));
+      stats[k]={min:Math.min(...vals),max:Math.max(...vals)};
+    });
+
+    thead.innerHTML=`<th class="ntd-rank" style="cursor:default;"></th>`+
+      cols.map(c=>{
+        let cls="";
+        if(c===sortState.col) cls=sortState.asc?"sort-asc":"sort-desc";
+        const align=c==="Team"?"text-align:left;padding-left:10px;":"";
+        return `<th class="${cls}" data-col="${c}" style="${align}">${displayNames[c]||c}</th>`;
+      }).join("");
+
+    tbody.innerHTML=data.map((row,idx)=>{
+      const team=row.Team.trim().toUpperCase();
+      const logo=teamLogos[team]||"";
+      let html=`<tr>`;
+      html+=`<td class="ntd-rank">${idx+1}</td>`;
+      html+=`<td><div class="ntd-team"><img src="${logo}" alt="${team}"><span>${team}</span></div></td>`;
+      cols.slice(1).forEach(col=>{
+        const val=parseFloat(row[col]);
+        const bg=colorScale(val,stats[col].min,stats[col].max,currentSide,col);
+        html+=`<td style="background:${bg};">${fmt(val,col)}</td>`;
+      });
+      html+=`</tr>`;
+      return html;
+    }).join("");
+
+    thead.querySelectorAll("th[data-col]").forEach(th=>{
+      th.onclick=()=>{
+        const col=th.dataset.col;
+        if(col==="Team") return;
+        if(sortState.col===col) sortState.asc=!sortState.asc;
+        else{sortState.col=col;sortState.asc=false;}
+        renderTable();
+      };
+    });
+  }
+
+  document.querySelectorAll("#nfl-team-dash .ntd-toggle").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      document.querySelectorAll("#nfl-team-dash .ntd-toggle").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      currentSide=btn.dataset.side;
+      sortState={col:null,asc:false};
+      renderTable();
+    });
+  });
+
+  document.querySelectorAll("#nfl-team-dash .ntd-view").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      document.querySelectorAll("#nfl-team-dash .ntd-view").forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active");
+      currentView=tab.dataset.view;
+      sortState={col:null,asc:false};
+      renderTable();
+    });
+  });
+
+});
+</script>
