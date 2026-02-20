@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>NFL Player Analytics - Mobile</title>
+  <style>
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #0e1117;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
+#container {
+  padding: 12px;
+  color: #fff;
+}
+
+#button-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.filter-btn {
+  background: #2d3748;
+  color: #cbd5e0;
+  border: 2px solid #4a5568;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  flex: 1;
+  max-width: 120px;
+  transition: all 0.2s;
+}
+
+.filter-btn:active {
+  transform: scale(0.95);
+}
+
+.filter-btn.active {
+  background: #3b82f6 !important;
+  color: #fff !important;
+  border-color: #3b82f6 !important;
+}
+
+.glossary {
+  display: none;
+  text-align: center;
+  color: #e0e0e0;
+  font-size: 11px;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  padding: 6px;
+  background: #1a1f2e;
+  border-radius: 4px;
+}
+
+.glossary.active {
+  display: block;
+}
+
+#title {
+  text-align: center;
+  background: #1e293b;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+#table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 13px;
+}
+
+th, td {
+  padding: 6px 4px;
+  border-bottom: 1px solid #2d323b;
+  white-space: nowrap;
+  min-width: 50px;
+  background: #0e1117;
+}
+
+th {
+  background: #14245c !important;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  cursor: pointer;
+  user-select: none;
+}
+
+th:active {
+  background: #1e3a8a !important;
+}
+
+td {
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+td:first-child, th:first-child {
+  position: sticky;
+  left: 0;
+  background: #0e1117;
+  text-align: left;
+  min-width: 140px;
+  max-width: 140px;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.3);
+  z-index: 8;
+  padding-left: 12px;
+}
+
+th:first-child {
+  background: #14245c !important;
+  z-index: 11;
+}
+
+#loading {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+#hint {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 10px;
+  margin-top: 8px;
+  padding: 4px;
+}
+
+@media(max-width:360px){
+  .filter-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  th, td {
+    font-size: 11px;
+    padding: 4px 3px;
+  }
+  td:first-child, th:first-child {
+    min-width: 120px;
+    max-width: 120px;
+    padding-left: 8px;
+  }
+}
+  </style>
+</head>
+<body>
+
+<div id="container">
+  <div id="button-group">
+    <button class="filter-btn active" id="btn-qb">QB</button>
+    <button class="filter-btn" id="btn-rb">RB</button>
+    <button class="filter-btn" id="btn-wr">WR/TE</button>
+  </div>
+
+  <div id="glossary-qb" class="glossary active">
+    <strong>Glossary:</strong> ATT = Attempts | CMP = Completions | CMP% = Completion Rate | YDS = Passing Yards | TD = Touchdowns | INT = Interceptions | YA = Yards per Attempt | IAY = Intended Air Yards | Success% = Successful Play Rate | EPA = Expected Points Added | CPOE = Completion % Over Expected | CP70+ = % of passes with completion probability ≥ 70%
+  </div>
+
+  <div id="glossary-rb" class="glossary">
+    <strong>Glossary:</strong> ATT = Attempts | YDS = Rushing Yards | TD = Touchdowns | YA = Yards/Attempt | Success% = Situational Success Rate | Yds Over Exp = Yards Over Expected | Brk Tkl = Broken Tackles | Guard/Tackle/End = Yards by run direction
+  </div>
+
+  <div id="glossary-wr" class="glossary">
+    <strong>Glossary:</strong> TGT = Targets | REC = Receptions | YDS = Receiving Yards | TD = Touchdowns | YPR = Yards per Reception | ADOT = Average Depth of Target | YAC = Yards After Catch | Separation = Average Separation | EPA = Expected Points Added
+  </div>
+
+  <div id="title">QB Passing Analytics</div>
+
+  <div id="table-wrap">
+    <div id="loading">Loading data...</div>
+    <table id="data-table" style="display:none;">
+      <thead id="thead"></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div id="hint">← Swipe to view all columns →</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+const URLS = {
+  qb: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1152850061&single=true&output=csv',
+  rb: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1056171373&single=true&output=csv',
+  wr: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1048851676&single=true&output=csv'
+};
+
+let cache = {};
+let current = 'qb';
+
+function color(p) {
+  const v = parseFloat(p);
+  if (isNaN(v)) return '#2d323b';
+  if (v >= 80) return '#2e7d32';
+  if (v >= 60) return '#66bb6a';
+  if (v >= 40) return '#f9a825';
+  if (v >= 20) return '#fb8c00';
+  return '#c62828';
+}
+
+function pct(val) {
+  const n = parseFloat(val);
+  if (isNaN(n)) return '-';
+  if (Math.abs(n) > 1 && Math.abs(n) < 100) return n.toFixed(1) + '%';
+  if (Math.abs(n) >= 100) return n.toFixed(0) + '%';
+  return (n * 100).toFixed(1) + '%';
+}
+
+function num(val) {
+  const n = parseFloat(val);
+  if (isNaN(n)) return '-';
+  if (Math.abs(n) >= 1000) return n.toLocaleString();
+  return n.toFixed(1).replace('.0', '');
+}
+
+function renderQB(data) {
+  document.getElementById('title').textContent = 'QB Passing Analytics';
+  
+  const seen = new Set();
+  const filtered = data.filter(p => {
+    if (!p.team_abbr || p.team_abbr === '0') return false;
+    if (seen.has(p.display_name)) return false;
+    seen.add(p.display_name);
+    return true;
+  }).sort((a, b) => parseFloat(b.YDS) - parseFloat(a.YDS));
+
+  document.getElementById('thead').innerHTML = `<tr>
+    <th>Player</th><th>Team</th><th>ATT</th><th>CMP</th><th>CMP%</th><th>YDS</th><th>TD</th><th>INT</th>
+    <th>YA</th><th>IAY</th><th>Success%</th><th>EPA</th><th>CPOE</th><th>CP70+</th>
+  </tr>`;
+
+  document.getElementById('tbody').innerHTML = filtered.map(p => {
+    const cols = [p.display_name, p.team_abbr, p.ATT, p.CMP, p["CMP%"], p.YDS, p.TD, p.INT, p.YA, p.IAY, p.SuccessPct, p.EPA, p.CPOE, p.CPOver70];
+    const percs = [null, null, p.ATT_PERC, p.CMP_PERC, p["CMP%_PERC"], p.YDS_PERC, p.TD_PERC, p.INT_PERC, p.YA_PERC, p.IAY_PERC, p.SuccessPct_PERC, p.EPA_PERC, p.CPOE_PERC, p.CPOver70_PERC];
+    
+    return '<tr>' + cols.map((val, j) => {
+      if (j === 0) return `<td style="text-align:left;font-weight:700;background:#0e1117;padding-left:12px;">${val}</td>`;
+      if (j === 1) return `<td style="font-weight:700;color:#8ab4f8;">${val || '-'}</td>`;
+      if (j === 4 || j === 10 || j === 12 || j === 13) return `<td style="background:${color(percs[j])};font-weight:700;">${pct(val)}</td>`;
+      if (j >= 8) return `<td style="background:${color(percs[j])};font-weight:700;">${num(val)}</td>`;
+      return `<td>${num(val)}</td>`;
+    }).join('') + '</tr>';
+  }).join('');
+  
+  attachSorting();
+}
+
+function renderRB(data) {
+  document.getElementById('title').textContent = 'RB Rushing Analytics';
+  
+  const seen = new Set();
+  const filtered = data.filter(p => {
+    if (!p.team_abbr || p.team_abbr === '0') return false;
+    if (seen.has(p.display_name)) return false;
+    seen.add(p.display_name);
+    return true;
+  }).sort((a, b) => parseFloat(b.YDS) - parseFloat(a.YDS));
+
+  document.getElementById('thead').innerHTML = `<tr>
+    <th>Player</th><th>Team</th><th>ATT</th><th>YDS</th><th>TD</th><th>YA</th><th>Success%</th>
+    <th>Yds Over Exp</th><th>Brk Tkl</th><th>Guard Yds</th><th>Tackle Yds</th><th>End Yds</th>
+  </tr>`;
+
+  document.getElementById('tbody').innerHTML = filtered.map(p => {
+    const cols = [p.display_name, p.team_abbr, p.ATT, p.YDS, p.TD, p.YA, p.SuccessPct, p.rush_yards_over_expected, p.brk_tkl, p.Guard_YDS, p.Tackle_YDS, p.End_YDS];
+    const percs = [null, null, p.ATT_PERC, p.YDS_PERC, p.TD_PERC, p.YA_PERC, p.SuccessPct_PERC, p.rush_yards_over_expected_PERC, p.brk_tkl_PERC, p.Guard_YDS_PERC, p.Tackle_YDS_PERC, p.End_YDS_PERC];
+    
+    return '<tr>' + cols.map((val, j) => {
+      if (j === 0) return `<td style="text-align:left;font-weight:700;background:#0e1117;padding-left:12px;">${val}</td>`;
+      if (j === 1) return `<td style="font-weight:700;color:#8ab4f8;">${val || '-'}</td>`;
+      if (j === 6) return `<td style="background:${color(percs[j])};font-weight:700;">${pct(val)}</td>`;
+      if (j >= 5) return `<td style="background:${color(percs[j])};font-weight:700;">${num(val)}</td>`;
+      return `<td>${num(val)}</td>`;
+    }).join('') + '</tr>';
+  }).join('');
+  
+  attachSorting();
+}
+
+function renderWR(data) {
+  document.getElementById('title').textContent = 'WR/TE Receiving Analytics';
+  
+  const seen = new Set();
+  const filtered = data.filter(p => {
+    if (!p.team_abbr || p.team_abbr === '0') return false;
+    if (seen.has(p.display_name)) return false;
+    seen.add(p.display_name);
+    return true;
+  }).sort((a, b) => parseFloat(b.YDS || 0) - parseFloat(a.YDS || 0));
+
+  document.getElementById('thead').innerHTML = `<tr>
+    <th>Player</th><th>Team</th><th>TGT</th><th>REC</th><th>YDS</th><th>TD</th><th>YPR</th>
+    <th>ADOT</th><th>YAC</th><th>Separation</th><th>EPA</th>
+  </tr>`;
+
+  document.getElementById('tbody').innerHTML = filtered.map(p => {
+    const cols = [p.display_name, p.team_abbr, p.TGT || p.targets, p.REC, p.YDS, p.TD, p.YPR, p.ADOT, p.YAC, p.avg_separation, p.EPA];
+    const percs = [null, null, p.TGT_PERC, p.REC_PERC, p.YDS_PERC, p.TD_PERC, p.YPR_PERC, p.ADOT_PERC, p.YAC_PERC, p.avg_separation_PERC, p.EPA_PERC];
+    
+    return '<tr>' + cols.map((val, j) => {
+      if (j === 0) return `<td style="text-align:left;font-weight:700;background:#0e1117;padding-left:12px;">${val}</td>`;
+      if (j === 1) return `<td style="font-weight:700;color:#8ab4f8;">${val || '-'}</td>`;
+      if (j >= 7) return `<td style="background:${color(percs[j])};font-weight:700;">${num(val)}</td>`;
+      return `<td>${num(val)}</td>`;
+    }).join('') + '</tr>';
+  }).join('');
+  
+  attachSorting();
+}
+
+function attachSorting() {
+  const headers = document.querySelectorAll('#data-table th');
+  const tbody = document.getElementById('tbody');
+  
+  headers.forEach((th, i) => {
+    // Remove any existing onclick to prevent duplicates
+    th.onclick = null;
+    
+    th.onclick = function() {
+      const rows = [...tbody.querySelectorAll('tr')];
+      const isAsc = this.classList.contains('asc');
+      
+      // Remove asc class from all headers
+      headers.forEach(h => h.classList.remove('asc'));
+      
+      // Toggle this header
+      if (!isAsc) {
+        this.classList.add('asc');
+      }
+      
+      rows.sort((a, b) => {
+        const A = a.children[i].innerText.replace(/[%,$]/g, '');
+        const B = b.children[i].innerText.replace(/[%,$]/g, '');
+        const numA = parseFloat(A);
+        const numB = parseFloat(B);
+        
+        // Handle text vs numbers
+        if (isNaN(numA) || isNaN(numB)) {
+          return isAsc ? A.localeCompare(B) : B.localeCompare(A);
+        }
+        return isAsc ? (numA - numB) : (numB - numA);
+      });
+      
+      tbody.innerHTML = '';
+      rows.forEach(r => tbody.appendChild(r));
+    };
+  });
+}
+
+function switchView(view) {
+  current = view;
+  
+  // Update buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('btn-' + view).classList.add('active');
+  
+  // Update glossary
+  document.querySelectorAll('.glossary').forEach(g => g.classList.remove('active'));
+  document.getElementById('glossary-' + view).classList.add('active');
+  
+  // Load data
+  if (cache[view]) {
+    if (view === 'qb') renderQB(cache[view]);
+    else if (view === 'rb') renderRB(cache[view]);
+    else renderWR(cache[view]);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('data-table').style.display = 'table';
+  } else {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').textContent = 'Loading data...';
+    document.getElementById('data-table').style.display = 'none';
+    
+    Papa.parse(URLS[view], {
+      download: true,
+      header: true,
+      complete: function(results) {
+        cache[view] = results.data.filter(r => r.display_name);
+        if (view === 'qb') renderQB(cache[view]);
+        else if (view === 'rb') renderRB(cache[view]);
+        else renderWR(cache[view]);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('data-table').style.display = 'table';
+      },
+      error: function(err) {
+        document.getElementById('loading').textContent = 'Error loading data. Please refresh.';
+        console.error(err);
+      }
+    });
+  }
+}
+
+// Button event listeners
+document.getElementById('btn-qb').addEventListener('click', function() { switchView('qb'); });
+document.getElementById('btn-rb').addEventListener('click', function() { switchView('rb'); });
+document.getElementById('btn-wr').addEventListener('click', function() { switchView('wr'); });
+
+// Initial load
+window.addEventListener('load', function() {
+  // Check if Papa Parse loaded
+  if (typeof Papa === 'undefined') {
+    document.getElementById('loading').textContent = 'Error: Failed to load data parser. Please refresh.';
+    return;
+  }
+  switchView('qb');
+});
+</script>
+
+</body>
+</html>
