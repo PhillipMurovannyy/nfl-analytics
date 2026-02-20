@@ -1,0 +1,236 @@
+<!-- External Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- QB Dashboard -->
+<div id="qb-dashboard" style="font-family:Roboto,sans-serif;background:#0e1117;color:#ffffff;border:2px solid #2d323b;border-radius:8px;padding:18px;max-width:750px;margin:auto;">
+
+  <!-- QB Selector -->
+  <div style="text-align:center;margin-bottom:24px;">
+    <label for="playerSelectQB" style="display:block;color:#fff;margin-bottom:8px;font-size:16px;font-weight:500;">
+      Select Quarterback:
+    </label>
+    <div style="display:flex;justify-content:center;">
+      <select id="playerSelectQB" style="padding:10px;width:70%;border:1px solid #2d323b;border-radius:5px;background:#1a1f27;color:#ffffff;font-size:17px;text-align:center;">
+        <option>Loading players...</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Chart Area -->
+  <div id="chart-area-qb">
+    <div style="text-align:center;margin-bottom:10px;">
+      <h4 style="color:#ffffff;font-weight:400;font-size:14px;margin:0;">
+        QB Metrics & League Percentiles | Data: xEP Network
+      </h4>
+      <p style="color:#cccccc;font-size:13px;max-width:600px;margin:3px auto 0;">
+        <strong>League PCTL</strong> = percentile rank vs all qualifying QBs — higher is better.
+      </p>
+    </div>
+
+    <!-- Title -->
+    <h2 id="player-titleQB" style="background:linear-gradient(90deg,#0d47a1 0%,#0d1b2a 100%);color:#ffffff;height:56px;padding:0 14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-radius:6px;font-weight:700;font-size:22px;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px;text-align:center;">
+      <div></div>
+      <span id="player-title-textQB">Quarterback Season Analytics</span>
+      <img src="https://xepanalytics.com/wp-content/uploads/2024/12/Logo-PNG-2.png" alt="XEP Logo" style="max-height:60px;transform:scale(1.3);width:auto;justify-self:end;filter:brightness(1.3);margin-left:10px;">
+    </h2>
+
+    <!-- Table -->
+    <table id="playerTableQB" style="width:100%;border-collapse:collapse;text-align:center;color:white;table-layout:fixed;font-size:17px;line-height:1;">
+      <thead>
+        <tr style="background:#1a1f27;color:#ffffff;font-weight:600;">
+          <th style="padding:6px 0;">METRIC</th>
+          <th style="padding:6px 0;">VALUE</th>
+          <th style="padding:6px 0;">LEAGUE PCTL</th>
+        </tr>
+      </thead>
+      <tbody id="playerBodyQB"></tbody>
+    </table>
+  </div>
+
+  <!-- Copy Button -->
+  <div style="text-align:center;margin-top:15px;">
+    <button onclick="copyQBChartImage()" style="padding:10px 20px;background:#2e7d32;color:white;font-size:15px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">📸 Copy Chart Image</button>
+    <p id="copyConfirmQB" style="color:#7af07a;font-size:13px;margin-top:8px;display:none;">✅ Chart image copied to clipboard!</p>
+  </div>
+</div>
+
+<!-- Responsive Styling -->
+<style>
+@media (max-width:768px){
+  #qb-dashboard{
+    padding:10px 8px !important;
+    max-width:100% !important;
+    border-width:1px !important;
+    border-radius:6px !important;
+  }
+  #playerSelectQB{
+    width:95% !important;
+    font-size:15px !important;
+    padding:9px !important;
+  }
+  #player-titleQB{
+    grid-template-columns:1fr auto !important;
+    height:auto !important;
+    padding:10px 12px !important;
+    font-size:18px !important;
+    gap:8px;
+  }
+  #player-titleQB > div:first-child{
+    display:none !important;
+  }
+  #player-title-textQB{
+    font-size:15px !important;
+    line-height:1.2;
+    text-align:left;
+  }
+  #player-titleQB img{
+    max-height:40px !important;
+    transform:scale(1.1) !important;
+    margin-left:6px !important;
+  }
+  #chart-area-qb h4{
+    font-size:12px !important;
+  }
+  #chart-area-qb p{
+    font-size:11px !important;
+  }
+  #playerTableQB{
+    font-size:13px !important;
+    line-height:1.15 !important;
+  }
+  #playerTableQB th{
+    padding:5px 3px !important;
+    font-size:11px !important;
+  }
+  #playerTableQB td{
+    padding:5px 4px !important;
+    font-size:13px !important;
+  }
+  #playerTableQB td:first-child{
+    font-size:12px !important;
+    padding-left:6px !important;
+  }
+  #qb-dashboard button[onclick*="copyQBChartImage"]{
+    font-size:13px !important;
+    padding:8px 16px !important;
+  }
+}
+
+@media (max-width:400px){
+  #player-title-textQB{
+    font-size:13px !important;
+  }
+  #player-titleQB img{
+    max-height:34px !important;
+  }
+  #playerTableQB{
+    font-size:12px !important;
+  }
+  #playerTableQB td:first-child{
+    font-size:11px !important;
+  }
+}
+</style>
+
+<!-- Main Script -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const csvURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1658511622&single=true&output=csv';
+  const select = document.getElementById("playerSelectQB");
+  const tbody = document.getElementById("playerBodyQB");
+
+  function getColor(p){
+    const percNum = parseFloat(p);
+    return percNum>=80?"#2e7d32":percNum>=60?"#38b000":percNum>=40?"#f9a825":percNum>=20?"#e65100":"#b71c1c";
+  }
+
+  function formatValue(stat,val){
+    if(!val)return"-";
+    const num=parseFloat(val);
+    if(isNaN(num))return val;
+    if(["YDS","TD","INT"].includes(stat))return Math.round(num);
+    if(["EPA","IAY"].includes(stat))return num.toFixed(2);
+    if(["CPOE","Catch % Over Expected"].includes(stat))return num.toFixed(0)+"%";
+    if(["CMP%","SuccessPct"].includes(stat))return(num<=1?(num*100):num).toFixed(0)+"%";
+    if(stat.toLowerCase().includes("cmp") || stat.toLowerCase().includes("pct")) return (num<=1?num*100:num).toFixed(0)+"%";
+    if(["passer_rating"].includes(stat))return num.toFixed(1);
+    return num.toFixed(1);
+  }
+
+  Papa.parse(csvURL,{
+    download:true,
+    header:true,
+    complete:function(results){
+      const rows = results.data;
+      if(!rows || !rows.length){ select.innerHTML="<option>No data found</option>"; return; }
+
+      const firstRow = rows[0];
+      const nameKey = Object.keys(firstRow).find(k => k.toLowerCase().includes("name") || k.toLowerCase().includes("player")) || "display_name";
+      const data = rows.filter(r => r[nameKey] && r[nameKey].trim() !== "");
+      if(!data.length){ select.innerHTML="<option>No players found</option>"; return; }
+
+      const names = [...new Set(data.map(r => r[nameKey]))].sort((a,b)=>a.localeCompare(b));
+      select.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join("");
+
+      function loadQB(name){
+        const player = data.find(r => r[nameKey].trim().toLowerCase() === name.trim().toLowerCase());
+        tbody.innerHTML = "";
+        if(!player) return;
+
+        document.getElementById("player-title-textQB").textContent = player[nameKey] + " Season Analytics";
+
+        const mapping = [
+          ["YDS","YDS_PERC","Passing Yards"],
+          ["CMP%","CMP%_PERC","Completion %"],
+          ["TD","TD_PERC","Touchdowns"],
+          ["INT","INT_PERC","Interceptions"],
+          ["SuccessPct","SuccessPct_PERC","Success Rate"],
+          ["IAY","IAY_PERC","ADOT"],
+          ["EPA","EPA_PERC","EPA"],
+          ["Short_CMPpct","Short_CMPpct_PERC","Short Pass CMP %"],
+          ["Intermediate_CMPpct","Intermediate_CMPpct_PERC","Intermediate Pass CMP %"],
+          ["Deep_CMPpct","Deep_CMPpct_PERC","Deep Pass CMP %"],
+          ["Third_CMPpct","Third_CMPpct_PERC","3rd Down CMP %"],
+          ["passer_rating","passer_rating_PERC","Passer Rating"],
+          ["CPOE","CPOE_PERC","CPOE"]
+        ];
+
+        mapping.forEach(([stat, perc, label]) => {
+          const val = formatValue(stat, player[stat]);
+          const p = parseFloat(player[perc]) || 0;
+          const color = getColor(p);
+          tbody.insertAdjacentHTML("beforeend",
+            `<tr style="background:#111827;">
+              <td style="border-bottom:1px solid #2d323b;text-align:left;padding:3px 6px;">${label}</td>
+              <td style="border-bottom:1px solid #2d323b;padding:3px 6px;">${val}</td>
+              <td style="border-bottom:1px solid #2d323b;padding:3px 6px;background:${color};color:white;font-weight:bold;">${Math.round(p)}%</td>
+            </tr>`
+          );
+        });
+      }
+
+      select.addEventListener("change", e => loadQB(e.target.value));
+      loadQB(names[0]);
+    },
+    error:function(err){
+      select.innerHTML="<option>Failed to load data</option>";
+      console.error("PapaParse failed:", err);
+    }
+  });
+
+  window.copyQBChartImage = async function(){
+    const chart = document.getElementById("chart-area-qb");
+    try{
+      const canvas = await html2canvas(chart,{backgroundColor:"#0e1117",scale:2,useCORS:true});
+      const blob = await new Promise(resolve => canvas.toBlob(resolve,"image/png"));
+      await navigator.clipboard.write([new ClipboardItem({"image/png":blob})]);
+      const confirm = document.getElementById("copyConfirmQB");
+      confirm.style.display="block";
+      setTimeout(()=>confirm.style.display="none",2500);
+    }catch{
+      alert("❌ Copy failed — your browser may not support image clipboard access.");
+    }
+  };
+});
+</script>
