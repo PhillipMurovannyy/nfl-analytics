@@ -1,0 +1,437 @@
+<!-- External Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<div id="nfl-analytics-wrap" style="font-family:'Roboto',sans-serif;background:#0e1117;color:#fff;padding:16px;max-width:1200px;margin:auto;border-radius:8px;">
+
+  <!-- Position Filter Buttons -->
+  <div style="text-align:center;margin-bottom:16px;">
+    <button id="btnQB" class="filter-btn active">
+      Passing
+    </button>
+    <button id="btnRB" class="filter-btn">
+      Rushing
+    </button>
+    <button id="btnWR" class="filter-btn">
+      Receiving
+    </button>
+  </div>
+
+  <!-- Glossary QB -->
+  <div id="glossary-qb" class="glossary-section" style="text-align:center;color:#e0e0e0;font-size:14px;line-height:1.5;margin-bottom:10px;">
+    <strong>Glossary:</strong> ATT = Attempts | CMP = Completions | CMP% = Completion Rate | YDS = Passing Yards | 
+    TD = Touchdowns | INT = Interceptions | YA = Yards per Attempt | IAY = Intended Air Yards | 
+    Success% = Successful Play Rate | EPA = Expected Points Added | CPOE = Completion % Over Expected | 
+    CP70+ = % of passes with completion probability ≥ 70%
+  </div>
+
+  <!-- Glossary RB -->
+  <div id="glossary-rb" class="glossary-section" style="display:none;text-align:center;color:#e0e0e0;font-size:14px;line-height:1.5;margin-bottom:10px;">
+    <strong>Glossary:</strong> ATT = Attempts | YDS = Rushing Yards | TD = Touchdowns | YA = Yards/Attempt | 
+    Success% = Situational Success Rate | Yds Over Exp = Yards Over Expected | 
+    Brk Tkl = Broken Tackles | Guard/Tackle/End = Yards by run direction
+  </div>
+
+  <!-- Glossary WR -->
+  <div id="glossary-wr" class="glossary-section" style="display:none;text-align:center;color:#e0e0e0;font-size:14px;line-height:1.5;margin-bottom:10px;">
+    <strong>Glossary:</strong> TGT = Targets | REC = Receptions | YDS = Receiving Yards | TD = Touchdowns | 
+    YPR = Yards per Reception | ADOT = Average Depth of Target | YAC = Yards After Catch | 
+    Separation = Average Separation | EPA = Expected Points Added
+  </div>
+
+  <!-- Title -->
+  <h2 id="table-title" style="text-align:center;background:#1e293b;
+             padding:10px;border-radius:6px;font-size:22px;font-weight:800;margin-bottom:12px;color:#fff;">
+    QB Passing Analytics Leaderboard
+  </h2>
+
+  <!-- Table Container -->
+  <div style="overflow-x:auto;">
+    <table id="analyticsTable" style="width:100%;border-collapse:collapse;text-align:center;font-size:18px;">
+      <thead id="tableHead" style="color:#fff;cursor:pointer;font-size:16px;font-weight:700;position:sticky;top:0;z-index:5;">
+        <!-- Headers will be dynamically inserted -->
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+#analyticsTable th, #analyticsTable td {
+  padding:6px 8px;
+  border-bottom:1px solid #2d323b;
+}
+#analyticsTable th:hover {background:#1e3a8a;}
+#analyticsTable td {
+  color:#ffffff;
+  font-weight:700;
+  background:#0e1117;
+}
+#analyticsTable th {
+  background:#14245c;
+}
+.value-cell {
+  font-weight:700;
+  color:#ffffff;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  margin: 2px;
+}
+#analyticsTable td:first-child {
+  text-align:left;
+  background:#0e1117;
+  min-width:180px;
+  width:180px;
+}
+#analyticsTable th:first-child {
+  min-width:180px;
+  width:180px;
+}
+
+.filter-btn {
+  background:#2d3748;
+  color:#cbd5e0;
+  border:2px solid #4a5568;
+  padding:10px 24px;
+  margin:0 6px;
+  border-radius:6px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.filter-btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(59,130,246,0.4);
+  background:#374151;
+}
+
+.filter-btn.active {
+  background:#3b82f6!important;
+  color:#fff!important;
+  border-color:#3b82f6!important;
+}
+
+#tableHead {
+  background:#14245c!important;
+}
+
+@media(max-width:768px){
+  .filter-btn{
+    padding:8px 16px;
+    font-size:14px;
+    margin:4px 3px;
+  }
+  #analyticsTable th,#analyticsTable td{
+    font-size:14px;
+    padding:6px 5px;
+  }
+  #table-title{
+    font-size:18px;
+  }
+}
+
+@media(max-width:480px){
+  #analyticsTable th,#analyticsTable td{
+    font-size:12px;
+    padding:4px 3px;
+  }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  const CSV_URLS = {
+    qb: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1152850061&single=true&output=csv',
+    rb: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1056171373&single=true&output=csv',
+    wr: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1048851676&single=true&output=csv'
+  };
+
+  const tableHead = document.getElementById("tableHead");
+  const tableBody = document.getElementById("tableBody");
+  const tableTitle = document.getElementById("table-title");
+  
+  let currentData = {};
+  let currentView = 'qb';
+
+  // Color coding function
+  function colorCell(p){
+    const v=parseFloat(p);
+    if(isNaN(v))return"#2d323b";
+    if(v>=80)return"#2e7d32";     // dark green
+    if(v>=60)return"#66bb6a";     // light green
+    if(v>=40)return"#f9a825";     // yellow
+    if(v>=20)return"#fb8c00";     // orange
+    return"#c62828";              // red
+  }
+
+  function formatPct(val){
+    const n=parseFloat(val);
+    if(isNaN(n))return"-";
+    if(Math.abs(n) > 1 && Math.abs(n) < 100) return n.toFixed(1) + "%";
+    if(Math.abs(n) >= 100) return n.toFixed(0) + "%";
+    return (n * 100).toFixed(1) + "%";
+  }
+
+  function formatNum(val){
+    const n=parseFloat(val);
+    if(isNaN(n))return"-";
+    if(Math.abs(n)>=1000)return n.toLocaleString();
+    return n.toFixed(1).replace(".0","");
+  }
+
+  // QB Table Configuration
+  function renderQBTable(data){
+    tableTitle.textContent = "QB Passing Analytics Leaderboard";
+    
+    tableHead.innerHTML = `<tr>
+      <th>Player</th><th>Team</th><th>ATT</th><th>CMP</th><th>CMP%</th><th>YDS</th><th>TD</th><th>INT</th>
+      <th>YA</th><th>IAY</th><th>Success%</th><th>EPA</th><th>CPOE</th><th>CP70+</th>
+    </tr>`;
+
+    // Filter out Team = 0 and remove duplicates (keep first occurrence)
+    const seen = new Set();
+    const filtered = data.filter(p => {
+      if(!p.team_abbr || p.team_abbr === '0') return false;
+      if(seen.has(p.display_name)) return false;
+      seen.add(p.display_name);
+      return true;
+    });
+
+    filtered.sort((a,b)=>parseFloat(b.YDS)-parseFloat(a.YDS));
+
+    tableBody.innerHTML = filtered.map(p=>{
+      const cols=[
+        p.display_name, p.team_abbr,
+        p.ATT,p.CMP,p["CMP%"],p.YDS,p.TD,p.INT,
+        p.YA,p.IAY,p.SuccessPct,p.EPA,p.CPOE,p.CPOver70
+      ];
+      const percs=[
+        null,null,p.ATT_PERC,p.CMP_PERC,p["CMP%_PERC"],p.YDS_PERC,p.TD_PERC,p.INT_PERC,
+        p.YA_PERC,p.IAY_PERC,p.SuccessPct_PERC,p.EPA_PERC,p.CPOE_PERC,p.CPOver70_PERC
+      ];
+
+      let row=`<tr>`;
+      cols.forEach((val,j)=>{
+        if(j===0){
+          row+=`<td style="text-align:left;font-weight:700;">${val}</td>`;
+        } else if(j===1){
+          row+=`<td style="font-weight:700;color:#8ab4f8;">${val || "-"}</td>`;
+        } 
+        else if(j===4 || j===10 || j===12 || j===13){ // % cols
+          const bg=colorCell(percs[j]);
+          row+=`<td><span class="value-cell" style="background:${bg};">${formatPct(val)}</span></td>`;
+        }
+        else if(j>=8){ // color-coded metrics
+          const bg=colorCell(percs[j]);
+          row+=`<td><span class="value-cell" style="background:${bg};">${formatNum(val)}</span></td>`;
+        } 
+        else {
+          row+=`<td>${formatNum(val)}</td>`;
+        }
+      });
+      row+=`</tr>`;
+      return row;
+    }).join("");
+
+    attachSorting();
+  }
+
+  // RB Table Configuration
+  function renderRBTable(data){
+    tableTitle.textContent = "RB Rushing Analytics Leaderboard";
+    
+    tableHead.innerHTML = `<tr>
+      <th>Player</th><th>Team</th><th>ATT</th><th>YDS</th><th>TD</th><th>YA</th><th>Success%</th>
+      <th>Yds Over Exp</th><th>Brk Tkl</th><th>Guard Yds</th><th>Tackle Yds</th><th>End Yds</th>
+    </tr>`;
+
+    // Filter out Team = 0 and remove duplicates (keep first occurrence)
+    const seen = new Set();
+    const filtered = data.filter(p => {
+      if(!p.team_abbr || p.team_abbr === '0') return false;
+      if(seen.has(p.display_name)) return false;
+      seen.add(p.display_name);
+      return true;
+    });
+
+    filtered.sort((a,b)=>parseFloat(b.YDS)-parseFloat(a.YDS));
+
+    tableBody.innerHTML = filtered.map(p=>{
+      const cols=[
+        p.display_name, p.team_abbr,
+        p.ATT,p.YDS,p.TD,
+        p.YA,p.SuccessPct,
+        p.rush_yards_over_expected,
+        p.brk_tkl,
+        p.Guard_YDS,p.Tackle_YDS,p.End_YDS
+      ];
+      const percs=[
+        null,null,
+        p.ATT_PERC,p.YDS_PERC,p.TD_PERC,
+        p.YA_PERC,p.SuccessPct_PERC,
+        p.rush_yards_over_expected_PERC,
+        p.brk_tkl_PERC,
+        p.Guard_YDS_PERC,p.Tackle_YDS_PERC,p.End_YDS_PERC
+      ];
+
+      let row=`<tr>`;
+      cols.forEach((val,j)=>{
+        if(j===0){
+          row+=`<td style="text-align:left;font-weight:700;">${val}</td>`;
+        } else if(j===1){
+          row+=`<td style="font-weight:700;color:#8ab4f8;">${val || "-"}</td>`;
+        } 
+        else if(j===6){ // Success%
+          const bg=colorCell(percs[j]);
+          row+=`<td><span class="value-cell" style="background:${bg};">${formatPct(val)}</span></td>`;
+        }
+        else if(j>=5){ // Color key metrics
+          const bg=colorCell(percs[j]);
+          row+=`<td><span class="value-cell" style="background:${bg};">${formatNum(val)}</span></td>`;
+        }
+        else{
+          row+=`<td>${formatNum(val)}</td>`;
+        }
+      });
+      row+=`</tr>`;
+      return row;
+    }).join("");
+
+    attachSorting();
+  }
+
+  // WR Table Configuration
+  function renderWRTable(data){
+    tableTitle.textContent = "WR/TE Receiving Analytics Leaderboard";
+    
+    tableHead.innerHTML = `<tr>
+      <th>Player</th><th>Team</th><th>TGT</th><th>REC</th><th>YDS</th><th>TD</th><th>YPR</th>
+      <th>ADOT</th><th>YAC</th><th>Separation</th><th>EPA</th>
+    </tr>`;
+
+    // Filter out Team = 0 and remove duplicates (keep first occurrence)
+    const seen = new Set();
+    const filtered = data.filter(p => {
+      if(!p.team_abbr || p.team_abbr === '0') return false;
+      if(seen.has(p.display_name)) return false;
+      seen.add(p.display_name);
+      return true;
+    });
+
+    filtered.sort((a,b)=>parseFloat(b.YDS || 0)-parseFloat(a.YDS || 0));
+
+    tableBody.innerHTML = filtered.map(p=>{
+      const cols=[
+        p.display_name, p.team_abbr,
+        p.TGT || p.targets || p.TAR,
+        p.REC || p.receptions,
+        p.YDS || p.receiving_yards,
+        p.TD || p.touchdowns,
+        p.YPR || p.yards_per_reception,
+        p.ADOT || p.avg_depth_of_target || p.aDOT,
+        p.YAC || p.yards_after_catch,
+        p.avg_separation || p.Separation,
+        p.EPA || p.epa
+      ];
+      const percs=[
+        null,null,
+        p.TGT_PERC,p.REC_PERC,p.YDS_PERC,p.TD_PERC,
+        p.YPR_PERC,p.ADOT_PERC,p.YAC_PERC,
+        p.avg_separation_PERC,p.EPA_PERC
+      ];
+
+      let row=`<tr>`;
+      cols.forEach((val,j)=>{
+        if(j===0){
+          row+=`<td style="text-align:left;font-weight:700;">${val}</td>`;
+        } else if(j===1){
+          row+=`<td style="font-weight:700;color:#8ab4f8;">${val || "-"}</td>`;
+        } 
+        else if(j>=7){ // Color-coded metrics from ADOT onwards
+          const bg=colorCell(percs[j]);
+          row+=`<td><span class="value-cell" style="background:${bg};">${formatNum(val)}</span></td>`;
+        }
+        else {
+          row+=`<td>${formatNum(val)}</td>`;
+        }
+      });
+      row+=`</tr>`;
+      return row;
+    }).join("");
+
+    attachSorting();
+  }
+
+  // Attach sorting to table headers
+  function attachSorting(){
+    const headers = document.querySelectorAll("#analyticsTable th");
+    headers.forEach((th,i)=>{
+      th.onclick = ()=>{
+        const rows=[...tableBody.querySelectorAll("tr")];
+        const asc=th.classList.toggle("asc");
+        rows.sort((a,b)=>{
+          const A=a.children[i].innerText.replace(/[%,$]/g,"");
+          const B=b.children[i].innerText.replace(/[%,$]/g,"");
+          return asc?(parseFloat(A)-parseFloat(B)):(parseFloat(B)-parseFloat(A));
+        });
+        tableBody.innerHTML="";
+        rows.forEach(r=>tableBody.appendChild(r));
+      };
+    });
+  }
+
+  // Load data for specific position
+  function loadData(position){
+    if(currentData[position]){
+      renderTable(position);
+    } else {
+      Papa.parse(CSV_URLS[position],{
+        download:true,
+        header:true,
+        complete:function(results){
+          currentData[position] = results.data.filter(r=>r.display_name);
+          renderTable(position);
+        }
+      });
+    }
+  }
+
+  function renderTable(position){
+    currentView = position;
+    
+    // Update glossary visibility
+    document.querySelectorAll('.glossary-section').forEach(g=>g.style.display='none');
+    document.getElementById(`glossary-${position}`).style.display='block';
+    
+    // Render appropriate table
+    if(position === 'qb') renderQBTable(currentData.qb);
+    else if(position === 'rb') renderRBTable(currentData.rb);
+    else if(position === 'wr') renderWRTable(currentData.wr);
+  }
+
+  // Button event listeners
+  document.getElementById('btnQB').addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    loadData('qb');
+  });
+
+  document.getElementById('btnRB').addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    loadData('rb');
+  });
+
+  document.getElementById('btnWR').addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    loadData('wr');
+  });
+
+  // Initial load
+  loadData('qb');
+});
+</script>
