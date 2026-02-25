@@ -172,7 +172,7 @@
     text-transform: uppercase;
   }
   .top5-row {
-    display: grid;
+    display: grid !important;
     grid-template-columns: 24px 1fr auto;
     align-items: center;
     gap: 8px;
@@ -189,11 +189,30 @@
     font-size: 13px;
     color: var(--text-muted);
     text-align: center;
+    flex-shrink: 0;
   }
   .top5-rank.gold { color: var(--gold); }
-  .top5-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Roboto Condensed', sans-serif; }
-  .top5-name small { display: block; font-size: 11px; font-weight: 400; color: var(--text-muted); font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px; text-transform: uppercase; }
-  .top5-val { font-family: 'Roboto Condensed', sans-serif; font-weight: 800; font-size: 16px; color: #fff; }
+  .top5-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    font-family: 'Roboto Condensed', sans-serif;
+  }
+  .top5-name small {
+    display: inline;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-family: 'Roboto Condensed', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-left: 4px;
+  }
+  .top5-val { font-family: 'Roboto Condensed', sans-serif; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; }
 
   /* LOADING */
   #loadingMsg {
@@ -371,8 +390,8 @@
     border-bottom: 1px solid var(--border);
   }
   .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)) !important;
     gap: 10px;
   }
   .stat-card {
@@ -457,68 +476,60 @@
   #emptyState p { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; }
 
   /* ── MOBILE & RESPONSIVE ────────────────────────────── */
-
-  /* Search shrinks gracefully */
   @media (max-width: 600px) {
-    .wrap { padding: 0 12px 50px; }
+    .wrap { padding: 0 10px 50px; }
 
     .search-section { padding: 20px 0 14px; }
     #playerSearch { font-size: 16px; padding: 13px 14px; }
 
-    /* Leaders: 2-col on small phones, not 1 */
-    .top5-section { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .top5-body { max-height: 240px; }
+    /* Leaders: 2-col */
+    .top5-section { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+    .top5-body { max-height: 220px; }
     .top5-name { font-size: 12px; }
-    .top5-val { font-size: 14px; }
+    .top5-val { font-size: 13px; }
     .top5-head { padding: 8px 10px; }
-    .top5-row { padding: 7px 10px; gap: 6px; }
+    .top5-row { padding: 6px 8px; gap: 5px; }
+    .top5-rank { font-size: 12px; }
 
-    /* Player header stacks cleanly */
-    .player-header {
-      padding: 14px;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .pos-badge { font-size: 20px; padding: 6px 12px; }
-    .player-name { font-size: clamp(20px, 7vw, 30px); letter-spacing: 1px; }
-    .player-meta { font-size: 11px; letter-spacing: 0.8px; }
+    /* Player header */
+    .player-header { padding: 12px; gap: 10px; }
+    .pos-badge { font-size: 18px; padding: 5px 10px; }
+    .player-name { font-size: clamp(18px, 6.5vw, 28px); letter-spacing: 1px; }
+    .player-meta { font-size: 10px; letter-spacing: 0.5px; }
+    .header-logo img { height: 26px; max-width: 66px; }
+    .header-logo-fallback { font-size: 14px; }
+    .back-btn { font-size: 11px; padding: 6px 12px; }
 
-    /* Logo smaller on phone */
-    .header-logo img { height: 28px; max-width: 72px; }
-    .header-logo-fallback { font-size: 15px; }
+    /* Tabs — hide scrollbar, allow horizontal swipe */
+    .tabs { padding: 3px; gap: 2px; }
+    .tab-btn { font-size: 10px !important; padding: 7px 6px !important; min-width: 0 !important; letter-spacing: 0.5px; flex: 1 1 0; }
 
-    /* Back button full width on phone */
-    .back-btn { font-size: 12px; padding: 7px 12px; }
+    /* Stat section titles */
+    .stat-section-title { font-size: 11px; letter-spacing: 1.5px; margin: 12px 0 8px; }
 
-    /* Tabs scroll horizontally — smaller touch targets */
-    .tabs { padding: 3px; gap: 3px; }
-    .tab-btn { font-size: 11px; padding: 8px 8px; min-width: 60px; letter-spacing: 0.8px; }
-
-    /* Stat section titles smaller */
-    .stat-section-title { font-size: 11px; letter-spacing: 2px; margin: 14px 0 8px; }
-
-    /* Stat cards: 2 columns, smaller value font */
-    .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .stat-card { padding: 12px 10px; }
-    .stat-label { font-size: 10px; letter-spacing: 0.5px; padding-bottom: 4px; }
-    .stat-value { font-size: 24px; }
+    /* Stat cards: force 2 columns */
+    .stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 7px; }
+    .stat-card { padding: 10px 9px; }
+    .stat-label { font-size: 9px; letter-spacing: 0.3px; padding-bottom: 3px; margin-bottom: 4px; }
+    .stat-value { font-size: 22px; }
     .stat-perc { font-size: 11px; }
 
-    /* Percentile bars: tighter label column */
-    .perc-bar-wrap { padding: 14px 12px; }
-    .perc-bar-title { font-size: 11px; letter-spacing: 1.5px; margin-bottom: 12px; padding-bottom: 6px; }
-    .perc-row { grid-template-columns: 100px 1fr 44px; gap: 8px; margin-bottom: 9px; }
-    .perc-name { font-size: 12px; }
+    /* Percentile bars */
+    .perc-bar-wrap { padding: 12px 10px; }
+    .perc-bar-title { font-size: 10px; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 5px; }
+    .perc-row { grid-template-columns: 90px 1fr 42px !important; gap: 7px; margin-bottom: 8px; }
+    .perc-name { font-size: 11px; }
     .perc-track { height: 6px; }
     .perc-num { font-size: 12px; }
   }
 
   /* Very small phones */
   @media (max-width: 360px) {
-    .top5-section { grid-template-columns: 1fr; }
-    .perc-row { grid-template-columns: 88px 1fr 40px; }
-    .stat-value { font-size: 20px; }
-    .player-name { font-size: 18px; }
+    .top5-section { grid-template-columns: 1fr !important; }
+    .perc-row { grid-template-columns: 78px 1fr 38px !important; }
+    .stat-value { font-size: 19px; }
+    .player-name { font-size: 16px; }
+    .tab-btn { font-size: 9px !important; padding: 6px 4px !important; }
   }
 </style>
 </head>
