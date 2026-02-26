@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFL Player Comparison | xEP Network</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060a14;
+  --surface:#0d1526;
+  --surface2:#0a1120;
+  --border:#1e3058;
+  --border2:#2a4070;
+  --blue:#3b82f6;
+  --blue-glow:rgba(59,130,246,0.13);
+  --header-bg:#0e1e4a;
+  --gold:#f59e0b;
+  --text:#e2e8f0;
+  --text-dim:#94a3b8;
+  --text-muted:#4e6080;
+  /* player accent colors */
+  --p0:#3b82f6;
+  --p1:#f59e0b;
+  --p2:#22c55e;
+  --p3:#a855f7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{overflow-x:hidden;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Roboto Condensed',sans-serif;
+  overflow-x:hidden;
+}
+
+/* ── PAGE ── */
+.page{
+  width:100%;max-width:1350px;
+  margin:0 auto;
+  padding:0 20px 60px;
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;row-gap:6px;
+  padding:14px 0 12px;border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand img{height:30px;filter:drop-shadow(0 0 8px rgba(59,130,246,.4));opacity:.95;}
+.brand-title{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:#fff;line-height:1;}
+.brand-sub{font-size:10px;color:#5a7aa0;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.topbar-badge{
+  margin-left:auto;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--blue);background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);
+  border-radius:6px;padding:4px 10px;white-space:nowrap;
+}
+
+/* ── CONTROLS BAR ── */
+.controls{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;row-gap:8px;
+  padding:12px 0 10px;
+}
+.pos-switcher{
+  display:flex;gap:3px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:10px;padding:3px;flex-shrink:0;
+}
+.pos-btn{
+  background:none;border:1px solid transparent;cursor:pointer;
+  font-family:'Roboto Condensed',sans-serif;
+  font-weight:900;font-size:14px;letter-spacing:2px;text-transform:uppercase;
+  padding:7px 18px;border-radius:7px;transition:all .18s;
+  color:#7a9dc0;white-space:nowrap;
+}
+.pos-btn:hover{color:#c8ddf0;background:rgba(255,255,255,.04);}
+.pos-btn.active-QB{background:rgba(59,130,246,.2);color:#60a5fa;border-color:rgba(59,130,246,.4);}
+.pos-btn.active-RB{background:rgba(34,197,94,.2);color:#4ade80;border-color:rgba(34,197,94,.4);}
+.pos-btn.active-WR{background:rgba(245,158,11,.2);color:#fbbf24;border-color:rgba(245,158,11,.4);}
+.pos-btn.active-TE{background:rgba(168,85,247,.2);color:#c084fc;border-color:rgba(168,85,247,.4);}
+
+/* screenshot btn — mobile only */
+.screenshot-btn{
+  margin-left:auto;
+  display:none; /* hidden on desktop */
+  align-items:center;gap:7px;
+  background:rgba(59,130,246,.12);border:1.5px solid rgba(59,130,246,.3);
+  color:#60a5fa;border-radius:8px;padding:8px 16px;cursor:pointer;
+  font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:1.2px;text-transform:uppercase;transition:all .18s;white-space:nowrap;
+}
+.screenshot-btn:hover{background:rgba(59,130,246,.22);border-color:rgba(59,130,246,.5);color:#93c5fd;}
+.screenshot-btn svg{flex-shrink:0;}
+
+/* ── PLAYER SELECTOR CARDS ── */
+.selectors{
+  display:grid;
+  gap:10px;
+  margin-bottom:16px;
+  /* column count set dynamically via JS */
+}
+@media(max-width:500px){
+  .selectors{gap:8px;grid-template-columns:repeat(2,1fr) !important;}
+}
+
+.player-slot{
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  position:relative;
+  transition:border-color .2s;
+}
+.player-slot.has-player{border-color:var(--slot-color,var(--border));}
+.slot-label{
+  font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;
+  color:var(--slot-color,var(--text-muted));
+  margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.slot-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--slot-color,var(--border2));flex-shrink:0;
+}
+.slot-search{
+  position:relative;
+}
+.slot-search input{
+  width:100%;background:var(--surface2);
+  border:1px solid var(--border2);color:#c8ddf0;
+  font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:600;
+  padding:8px 10px;border-radius:7px;outline:none;
+  transition:border-color .2s;
+}
+.slot-search input:focus{border-color:var(--slot-color,var(--blue));}
+.slot-search input::placeholder{color:#4e6a88;}
+.slot-dropdown{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:#0d1e3a;border:1.5px solid var(--border2);
+  border-radius:8px;z-index:100;
+  max-height:200px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--border2) transparent;
+  display:none;
+}
+.slot-dropdown.open{display:block;}
+.slot-dropdown::-webkit-scrollbar{width:4px;}
+.slot-dropdown::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.drop-item{
+  padding:8px 12px;cursor:pointer;
+  font-size:13px;font-weight:600;color:#c8ddf0;
+  border-bottom:1px solid rgba(42,64,112,.4);
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .12s;
+}
+.drop-item:last-child{border-bottom:none;}
+.drop-item:hover{background:rgba(59,130,246,.12);}
+.drop-team{font-size:11px;color:#5a7aa0;font-weight:700;letter-spacing:.8px;}
+
+/* selected player display */
+.slot-selected{
+  display:none;align-items:center;justify-content:space-between;gap:8px;
+}
+.slot-selected.show{display:flex;}
+.slot-selected-info{}
+.slot-sel-name{font-size:15px;font-weight:900;color:#fff;line-height:1.1;}
+.slot-sel-team{font-size:11px;color:#6a88aa;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.slot-clear{
+  background:none;border:none;cursor:pointer;
+  color:#4e6080;font-size:16px;line-height:1;padding:2px 4px;
+  transition:color .15s;flex-shrink:0;
+}
+.slot-clear:hover{color:#ef4444;}
+
+/* ── STAT CATEGORY TABS ── */
+.cat-bar{
+  display:flex;gap:3px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:10px;padding:3px;margin-bottom:14px;
+}
+.cat-bar::-webkit-scrollbar{display:none;}
+.cat-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:1.2px;text-transform:uppercase;padding:7px 16px;
+  border-radius:6px;transition:all .18s;color:#7a9dc0;white-space:nowrap;flex-shrink:0;
+}
+.cat-btn:hover{background:var(--blue-glow);color:#c8ddf0;}
+.cat-btn.active{background:var(--blue);color:#fff;}
+
+/* ── COMPARISON TABLE ── */
+/* screenshot wrapper — what gets captured */
+#compCapture{
+  border-radius:14px;
+  overflow:hidden;
+  border:1.5px solid var(--border);
+  background:var(--surface);
+}
+
+.comp-header{
+  display:grid;
+  background:var(--header-bg);
+  border-bottom:1px solid var(--border2);
+  padding:0;
+}
+.comp-header-stat{
+  padding:13px 16px;
+  font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;
+  color:#7a9dc0;border-right:1px solid rgba(42,64,112,.3);
+  min-width:160px;
+}
+.comp-header-player{
+  padding:14px 16px;
+  text-align:center;
+  border-right:1px solid rgba(42,64,112,.3);
+  position:relative;
+}
+.comp-header-player:last-child{border-right:none;}
+.php-bar{
+  position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:0;
+}
+.php-name{font-size:15px;font-weight:900;color:#fff;line-height:1.1;margin-top:2px;}
+.php-team{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6a88aa;margin-top:2px;}
+.php-empty{color:#2a4070;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+
+/* stat rows */
+.comp-row{
+  display:grid;
+  border-bottom:1px solid rgba(30,48,88,.3);
+  transition:background .1s;
+}
+.comp-row:last-child{border-bottom:none;}
+.comp-row:hover{background:rgba(59,130,246,.04);}
+
+/* section header rows */
+.comp-section{
+  display:grid;
+  background:rgba(14,30,74,.6);
+  border-bottom:1px solid rgba(42,64,112,.4);
+  border-top:1px solid rgba(42,64,112,.4);
+}
+.comp-section-label{
+  padding:7px 16px;
+  font-size:10px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;
+  color:#5a7aa0;
+  grid-column:1/-1;
+}
+
+.comp-stat-label{
+  padding:12px 16px;
+  font-size:13px;font-weight:700;color:var(--text-dim);
+  display:flex;flex-direction:column;gap:2px;
+  border-right:1px solid rgba(42,64,112,.2);
+  min-width:160px;
+}
+.comp-stat-desc{font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.3px;}
+
+.comp-cell{
+  padding:12px 16px;
+  text-align:center;
+  font-size:16px;font-weight:700;
+  font-variant-numeric:tabular-nums;
+  color:#e2e8f0;
+  display:flex;align-items:center;justify-content:center;
+  border-right:1px solid rgba(42,64,112,.2);
+  position:relative;
+  transition:background .15s;
+}
+.comp-cell:last-child{border-right:none;}
+.comp-cell.best{
+  color:#fff;font-weight:900;
+}
+.comp-cell.best::after{
+  content:'';
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:28px;height:2px;border-radius:2px;
+  background:var(--cell-accent,var(--blue));
+}
+.comp-cell.empty{color:#2a4070;}
+/* bar behind value for quick visual comparison */
+.cell-bar{
+  position:absolute;inset:0;opacity:.08;
+  border-radius:0;
+  transition:width .3s ease;
+  pointer-events:none;
+}
+
+/* ── EMPTY / LOADING STATE ── */
+.comp-placeholder{
+  padding:60px 20px;
+  text-align:center;
+  color:var(--text-muted);
+}
+.comp-placeholder-title{
+  font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:#2a4070;margin-bottom:8px;
+}
+.comp-placeholder-sub{font-size:13px;color:#1e3058;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+
+.loading-wrap{padding:50px;text-align:center;color:var(--text-muted);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.spinner{
+  width:28px;height:28px;border:3px solid var(--border);
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin .75s linear infinite;
+  margin:0 auto 14px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── LEGEND ── */
+.legend{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:10px 0 0;
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text-muted);
+}
+.legend-item{display:flex;align-items:center;gap:6px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;}
+.legend-best{
+  display:flex;align-items:center;gap:6px;margin-left:auto;
+  color:#5a7aa0;font-size:11px;font-weight:700;
+}
+.legend-bar-demo{
+  width:20px;height:2px;background:var(--blue);border-radius:2px;
+}
+
+/* ── MOBILE ── */
+@media(max-width:680px){
+  .page{padding:0 10px 40px;}
+  .brand img{height:22px;}
+  .brand-title{font-size:14px;letter-spacing:2px;}
+  .brand-sub{font-size:9px;}
+  .pos-btn{font-size:12px;padding:6px 11px;}
+  .cat-btn{font-size:11px;padding:6px 10px;}
+  .screenshot-btn{display:flex;padding:7px 12px;font-size:11px;}
+  .selectors{gap:7px;}
+  .player-slot{padding:10px;}
+  .slot-search input{font-size:14px;padding:8px 9px;} /* 14px+ prevents iOS zoom */
+  .comp-stat-label{min-width:110px;padding:10px 10px;font-size:12px;}
+  .comp-stat-desc{display:none;}
+  .comp-cell{font-size:14px;padding:10px 8px;}
+  .comp-header-stat{min-width:110px;padding:11px 10px;font-size:10px;}
+  .comp-header-player{padding:11px 8px;}
+  .php-name{font-size:13px;}
+  .php-team{font-size:10px;}
+  .legend{gap:10px;}
+}
+@media(max-width:400px){
+  .selectors{grid-template-columns:1fr 1fr;}
+  .slot-sel-name{font-size:13px;}
+  .comp-stat-label{min-width:90px;font-size:11px;}
+  .comp-cell{font-size:13px;padding:9px 6px;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="https://xep.ai/wp-content/uploads/2024/07/Logo-PNG-2-1.png" alt="xEP" onerror="this.style.display='none'">
+      <div>
+        <div class="brand-title">Player Comparison</div>
+        <div class="brand-sub">2025-26 Season &nbsp;·&nbsp; Data: xEP Network</div>
+      </div>
+    </div>
+    <span class="topbar-badge" id="dataStatus">Loading...</span>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="pos-switcher" id="posSwitcher">
+      <button class="pos-btn" data-pos="QB">QB</button>
+      <button class="pos-btn" data-pos="RB">RB</button>
+      <button class="pos-btn" data-pos="WR">WR</button>
+      <button class="pos-btn" data-pos="TE">TE</button>
+    </div>
+    <button class="screenshot-btn" id="screenshotBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M3 9V6a1 1 0 0 1 1-1h3M21 9V6a1 1 0 0 0-1-1h-3M3 15v3a1 1 0 0 0 1 1h3M21 15v3a1 1 0 0 1-1 1h-3"/></svg>
+      Screenshot
+    </button>
+  </div>
+
+  <!-- PLAYER SELECTOR SLOTS -->
+  <div class="selectors" id="selectors"></div>
+
+  <!-- CATEGORY TABS -->
+  <div class="cat-bar" id="catBar"></div>
+
+  <!-- LEGEND -->
+  <div class="legend" id="legend" style="display:none">
+    <div class="legend-item" id="legendPlayers"></div>
+    <div class="legend-best">
+      <div class="legend-bar-demo"></div>
+      Underline = best in category
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div style="margin-top:10px;">
+    <div id="compCapture">
+      <div class="comp-placeholder" id="compPlaceholder">
+        <div class="comp-placeholder-title">Select Players to Compare</div>
+        <div class="comp-placeholder-sub">Choose 2–4 players of the same position above</div>
+      </div>
+      <div id="compTable" style="display:none"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────
+const PROXIES=[
+  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+];
+const SHEETS={
+  QB:'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1152850061&single=true&output=csv',
+  RB:'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1056171373&single=true&output=csv',
+  REC:'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1048851676&single=true&output=csv',
+};
+const CACHE_KEY='xep_nfl_v2';
+const PLAYER_COLORS=['#3b82f6','#f59e0b','#22c55e','#a855f7'];
+// Stats where LOWER is better
+const LOWER_IS_BETTER=new Set(['INT','bad_throws','throwaways','drops','times_pressured','pressure_pct','times_hurried','times_hit','Pct_Under3','avg_time_to_los']);
+
+async function fetchWithFallback(url){
+  const tryProxy=p=>new Promise(async(res,rej)=>{
+    try{
+      const ctrl=new AbortController();
+      const t=setTimeout(()=>ctrl.abort(),6000);
+      const r=await fetch(p(url),{signal:ctrl.signal});
+      clearTimeout(t);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const txt=await r.text();
+      if(!txt||txt.trim().length<50)throw new Error('empty');
+      res(txt);
+    }catch(e){rej(e);}
+  });
+  return Promise.any(PROXIES.map(p=>tryProxy(p)));
+}
+function parseCSV(txt){
+  const lines=txt.trim().split(/\r?\n/);
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+  const out=[];
+  for(let i=1;i<lines.length;i++){
+    const vals=csvSplit(lines[i]);
+    if(!vals[0]&&!vals[1])continue;
+    const obj={};
+    headers.forEach((h,j)=>{obj[h]=(vals[j]||'').trim();});
+    if(obj['display_name'])out.push(obj);
+  }
+  return out;
+}
+function csvSplit(line){
+  const r=[];let q=false,c='';
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"')q=!q;
+    else if(ch===','&&!q){r.push(c);c='';}
+    else c+=ch;
+  }
+  r.push(c);return r;
+}
+function loadCache(){
+  try{
+    const raw=sessionStorage.getItem(CACHE_KEY);
+    if(!raw)return null;
+    const d=JSON.parse(raw);
+    if(Date.now()-d.t>600000){sessionStorage.removeItem(CACHE_KEY);return null;}
+    return d;
+  }catch(e){return null;}
+}
+function saveCache(qb,rb,rec){
+  try{sessionStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),qb,rb,rec}));}catch(e){}
+}
+
+// ── COLUMN DEFS ──────────────────────────────────────────
+// Flat structure for comparison: [{section, stats:[{k,lab,fmt,desc}]}]
+const COMP_DEFS={
+  QB:[
+    {cat:'Overview', sections:[
+      {sec:'Passing Volume', stats:[
+        {k:'CMP',lab:'CMP',fmt:'int',desc:'Completions'},
+        {k:'ATT',lab:'ATT',fmt:'int',desc:'Pass Attempts'},
+        {k:'CMP%',lab:'CMP%',fmt:'pct',desc:'Completion %'},
+        {k:'YDS',lab:'YDS',fmt:'int',desc:'Passing Yards'},
+        {k:'TD',lab:'TD',fmt:'int',desc:'Touchdowns'},
+        {k:'INT',lab:'INT',fmt:'int',desc:'Interceptions'},
+      ]},
+      {sec:'Efficiency', stats:[
+        {k:'passer_rating',lab:'RTG',fmt:'dec1',desc:'Passer Rating'},
+        {k:'SuccessPct',lab:'SUCC%',fmt:'pct',desc:'Success Rate'},
+        {k:'EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+        {k:'CPOE',lab:'CPOE',fmt:'cpoe',desc:'Completion % Over Expected'},
+        {k:'IAY',lab:'ADOT',fmt:'dec2',desc:'Avg Depth of Target'},
+        {k:'YAC',lab:'YAC',fmt:'dec1',desc:'Yards After Catch'},
+      ]},
+    ]},
+    {cat:'Accuracy', sections:[
+      {sec:'Accuracy Metrics', stats:[
+        {k:'on_tgt_pct',lab:'ON TGT%',fmt:'pct',desc:'On-Target Throw Rate'},
+        {k:'on_tgt_throws',lab:'ON TGT',fmt:'int',desc:'On-Target Throws'},
+        {k:'bad_throws',lab:'BAD',fmt:'int',desc:'Bad Throws'},
+        {k:'drops',lab:'DROPS',fmt:'int',desc:'Receiver Drops'},
+        {k:'throwaways',lab:'AWAY',fmt:'int',desc:'Throwaways'},
+        {k:'CPOE',lab:'CPOE',fmt:'cpoe',desc:'Completion % Over Expected'},
+      ]},
+    ]},
+    {cat:'Route Depth', sections:[
+      {sec:'Short Routes  ·  0–9 Yards', stats:[
+        {k:'Short_ATT',lab:'ATT',fmt:'int',desc:'Attempts'},
+        {k:'Short_CMPpct',lab:'CMP%',fmt:'pct',desc:'Completion %'},
+        {k:'Short_YDS',lab:'YDS',fmt:'int',desc:'Yards'},
+        {k:'Short_EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+      ]},
+      {sec:'Intermediate Routes  ·  10–19 Yards', stats:[
+        {k:'Intermediate_ATT',lab:'ATT',fmt:'int',desc:'Attempts'},
+        {k:'Intermediate_CMPpct',lab:'CMP%',fmt:'pct',desc:'Completion %'},
+        {k:'Intermediate_YDS',lab:'YDS',fmt:'int',desc:'Yards'},
+        {k:'Intermediate_EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+      ]},
+      {sec:'Deep Routes  ·  20+ Yards', stats:[
+        {k:'Deep_ATT',lab:'ATT',fmt:'int',desc:'Attempts'},
+        {k:'Deep_CMPpct',lab:'CMP%',fmt:'pct',desc:'Completion %'},
+        {k:'Deep_YDS',lab:'YDS',fmt:'int',desc:'Yards'},
+        {k:'Deep_EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+      ]},
+    ]},
+    {cat:'Situation', sections:[
+      {sec:'Down Splits', stats:[
+        {k:'Third_ATT',lab:'3D ATT',fmt:'int',desc:'3rd Down Attempts'},
+        {k:'Third_CMPpct',lab:'3D CMP%',fmt:'pct',desc:'3rd Down CMP%'},
+        {k:'Third_YDS',lab:'3D YDS',fmt:'int',desc:'3rd Down Yards'},
+        {k:'Third_EPA',lab:'3D EPA',fmt:'dec2',desc:'3rd Down EPA'},
+        {k:'Fourth_ATT',lab:'4D ATT',fmt:'int',desc:'4th Down Attempts'},
+        {k:'Fourth_CMPpct',lab:'4D CMP%',fmt:'pct',desc:'4th Down CMP%'},
+        {k:'Fourth_EPA',lab:'4D EPA',fmt:'dec2',desc:'4th Down EPA'},
+      ]},
+      {sec:'4th Quarter Clutch', stats:[
+        {k:'FourthQ_CMPpct',lab:'Q4 CMP%',fmt:'pct',desc:'Q4 Completion %'},
+        {k:'FourthQ_EPA',lab:'Q4 EPA',fmt:'dec2',desc:'Q4 EPA'},
+        {k:'FourthQ_YDS',lab:'Q4 YDS',fmt:'int',desc:'Q4 Yards'},
+      ]},
+    ]},
+    {cat:'Pressure', sections:[
+      {sec:'Pressure Stats', stats:[
+        {k:'avg_time_to_throw',lab:'TTT',fmt:'dec2s',desc:'Avg Time to Throw'},
+        {k:'pocket_time',lab:'PKT',fmt:'dec2s',desc:'Avg Pocket Time'},
+        {k:'times_pressured',lab:'PRSS',fmt:'int',desc:'Times Pressured'},
+        {k:'pressure_pct',lab:'PRSS%',fmt:'pct',desc:'Pressure Rate'},
+        {k:'times_hurried',lab:'HRD',fmt:'int',desc:'Times Hurried'},
+        {k:'times_hit',lab:'HIT',fmt:'int',desc:'Times Hit'},
+        {k:'times_blitzed',lab:'BLTZ',fmt:'int',desc:'Times Blitzed'},
+        {k:'batted_balls',lab:'BATD',fmt:'int',desc:'Batted Balls'},
+      ]},
+    ]},
+  ],
+  RB:[
+    {cat:'Overview', sections:[
+      {sec:'Rushing Volume', stats:[
+        {k:'ATT',lab:'CAR',fmt:'int',desc:'Carries'},
+        {k:'YDS',lab:'YDS',fmt:'int',desc:'Rushing Yards'},
+        {k:'TD',lab:'TD',fmt:'int',desc:'Touchdowns'},
+        {k:'YA',lab:'Y/A',fmt:'dec2',desc:'Yards Per Attempt'},
+        {k:'SuccessPct',lab:'SUCC%',fmt:'pct',desc:'Success Rate'},
+        {k:'EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+        {k:'Runs10plus',lab:'10+',fmt:'int',desc:'10+ Yard Runs'},
+        {k:'Runs20plus',lab:'20+',fmt:'int',desc:'20+ Yard Runs'},
+        {k:'Pct_Under3',lab:'<3YD%',fmt:'pct',desc:'% Carries Under 3 Yds'},
+      ]},
+    ]},
+    {cat:'Efficiency', sections:[
+      {sec:'Contact & Evasion', stats:[
+        {k:'ybc',lab:'YBC',fmt:'dec1',desc:'Yards Before Contact'},
+        {k:'ybc_att',lab:'YBC/A',fmt:'dec2',desc:'YBC Per Attempt'},
+        {k:'yac',lab:'YAC',fmt:'dec1',desc:'Yards After Contact'},
+        {k:'yac_att',lab:'YAC/A',fmt:'dec2',desc:'YAC Per Attempt'},
+        {k:'brk_tkl',lab:'BRK',fmt:'int',desc:'Broken Tackles'},
+      ]},
+      {sec:'Next Gen Stats', stats:[
+        {k:'expected_rush_yards',lab:'xRYDS',fmt:'dec1',desc:'Expected Rush Yards'},
+        {k:'rush_yards_over_expected',lab:'RYOE',fmt:'dec1',desc:'Rush Yards Over Expected'},
+        {k:'rush_pct_over_expected',lab:'R%OE',fmt:'pct',desc:'Rush % Over Expected'},
+      ]},
+    ]},
+    {cat:'Formation', sections:[
+      {sec:'Shotgun vs Under Center', stats:[
+        {k:'Shotgun_ATT',lab:'SG ATT',fmt:'int',desc:'Shotgun Carries'},
+        {k:'Shotgun_YDS',lab:'SG YDS',fmt:'int',desc:'Shotgun Yards'},
+        {k:'Shotgun_Success',lab:'SG SUCC%',fmt:'pct',desc:'Shotgun Success Rate'},
+        {k:'UnderCenter_ATT',lab:'UC ATT',fmt:'int',desc:'Under Center Carries'},
+        {k:'UnderCenter_YDS',lab:'UC YDS',fmt:'int',desc:'Under Center Yards'},
+        {k:'UnderCenter_Success',lab:'UC SUCC%',fmt:'pct',desc:'Under Center Success Rate'},
+      ]},
+    ]},
+    {cat:'Gap', sections:[
+      {sec:'Gap / Direction', stats:[
+        {k:'Guard_ATT',lab:'GD ATT',fmt:'int',desc:'Guard Carries'},
+        {k:'Guard_YDS',lab:'GD YDS',fmt:'int',desc:'Guard Yards'},
+        {k:'Tackle_ATT',lab:'TK ATT',fmt:'int',desc:'Tackle Carries'},
+        {k:'Tackle_YDS',lab:'TK YDS',fmt:'int',desc:'Tackle Yards'},
+        {k:'End_ATT',lab:'EN ATT',fmt:'int',desc:'End Carries'},
+        {k:'End_YDS',lab:'EN YDS',fmt:'int',desc:'End Yards'},
+      ]},
+    ]},
+    {cat:'Situation', sections:[
+      {sec:'Down Splits', stats:[
+        {k:'First_ATT',lab:'1D ATT',fmt:'int',desc:'1st Down Carries'},
+        {k:'First_YDS',lab:'1D YDS',fmt:'int',desc:'1st Down Yards'},
+        {k:'First_Success',lab:'1D SUCC%',fmt:'pct',desc:'1st Down Success'},
+        {k:'Second_ATT',lab:'2D ATT',fmt:'int',desc:'2nd Down Carries'},
+        {k:'Second_YDS',lab:'2D YDS',fmt:'int',desc:'2nd Down Yards'},
+        {k:'Second_Success',lab:'2D SUCC%',fmt:'pct',desc:'2nd Down Success'},
+        {k:'Third_ATT',lab:'3D ATT',fmt:'int',desc:'3rd Down Carries'},
+        {k:'Third_YDS',lab:'3D YDS',fmt:'int',desc:'3rd Down Yards'},
+        {k:'Third_Success',lab:'3D SUCC%',fmt:'pct',desc:'3rd Down Success'},
+      ]},
+    ]},
+    {cat:'NGS', sections:[
+      {sec:'Next Gen Stats', stats:[
+        {k:'avg_time_to_los',lab:'T→LOS',fmt:'dec2s',desc:'Time to Line of Scrimmage'},
+        {k:'expected_rush_yards',lab:'xRYDS',fmt:'dec1',desc:'Expected Rush Yards'},
+        {k:'rush_yards_over_expected',lab:'RYOE',fmt:'dec1',desc:'Rush Yards Over Expected'},
+        {k:'rush_pct_over_expected',lab:'R%OE',fmt:'pct',desc:'Rush % Over Expected'},
+        {k:'percent_attempts_gte_eight_defenders',lab:'8BOX%',fmt:'pct',desc:'vs 8-Man Box %'},
+      ]},
+    ]},
+  ],
+  WR:[
+    {cat:'Overview', sections:[
+      {sec:'Receiving Volume', stats:[
+        {k:'TGT',lab:'TGT',fmt:'int',desc:'Targets'},
+        {k:'REC',lab:'REC',fmt:'int',desc:'Receptions'},
+        {k:'YDS',lab:'YDS',fmt:'int',desc:'Receiving Yards'},
+        {k:'YPR',lab:'YPR',fmt:'dec1',desc:'Yards Per Reception'},
+        {k:'TD',lab:'TD',fmt:'int',desc:'Touchdowns'},
+        {k:'CP',lab:'CTH%',fmt:'pct',desc:'Catch Rate'},
+        {k:'ADOT',lab:'ADOT',fmt:'dec1',desc:'Avg Depth of Target'},
+        {k:'YAC',lab:'YAC',fmt:'dec1',desc:'Yards After Catch'},
+        {k:'ExpectedYAC',lab:'xYAC',fmt:'dec1',desc:'Expected YAC'},
+        {k:'EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+      ]},
+    ]},
+    {cat:'Separation', sections:[
+      {sec:'Separation & Routes', stats:[
+        {k:'avg_cushion',lab:'CUSH',fmt:'dec1',desc:'Pre-Snap Cushion'},
+        {k:'avg_separation',lab:'SEP',fmt:'dec1',desc:'Separation at Target'},
+        {k:'avg_intended_air_yards',lab:'IAY',fmt:'dec1',desc:'Intended Air Yards'},
+        {k:'avg_yac',lab:'aYAC',fmt:'dec1',desc:'Avg YAC'},
+        {k:'avg_expected_yac',lab:'xYAC',fmt:'dec1',desc:'Expected YAC'},
+        {k:'avg_yac_above_expectation',lab:'YAC+',fmt:'dec2',desc:'YAC Above Expected'},
+      ]},
+    ]},
+    {cat:'Route Depth', sections:[
+      {sec:'Short Routes  ·  0–9 Yards', stats:[
+        {k:'Short_TGT',lab:'TGT',fmt:'int',desc:'Targets'},
+        {k:'Short_REC',lab:'REC',fmt:'int',desc:'Receptions'},
+        {k:'Short_YDS',lab:'YDS',fmt:'int',desc:'Yards'},
+        {k:'Short_EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+      ]},
+      {sec:'Intermediate Routes  ·  10–19 Yards', stats:[
+        {k:'Intermediate_TGT',lab:'TGT',fmt:'int',desc:'Targets'},
+        {k:'Intermediate_REC',lab:'REC',fmt:'int',desc:'Receptions'},
+        {k:'Intermediate_YDS',lab:'YDS',fmt:'int',desc:'Yards'},
+        {k:'Intermediate_EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+      ]},
+      {sec:'Deep Routes  ·  20+ Yards', stats:[
+        {k:'Deep_TGT',lab:'TGT',fmt:'int',desc:'Targets'},
+        {k:'Deep_REC',lab:'REC',fmt:'int',desc:'Receptions'},
+        {k:'Deep_YDS',lab:'YDS',fmt:'int',desc:'Yards'},
+        {k:'Deep_EPA',lab:'EPA',fmt:'dec2',desc:'Expected Points Added'},
+      ]},
+    ]},
+  ],
+};
+COMP_DEFS.TE=COMP_DEFS.WR;
+
+// ── STATE ────────────────────────────────────────────────
+const state={
+  pos:'QB',
+  cat:0,
+  players:[null,null,null,null], // selected player objects
+};
+const allData={QB:[],RB:[],WR:[],TE:[]};
+let dataReady=false;
+
+// ── FORMAT ───────────────────────────────────────────────
+function addCommas(n){const s=Math.round(n).toString();return s.length>3?s.replace(/\B(?=(\d{3})+(?!\d))/g,','):s;}
+function fmtVal(raw,fmt){
+  if(raw===''||raw===undefined||raw===null)return'—';
+  const n=+raw;if(isNaN(n))return'—';
+  switch(fmt){
+    case'int':  return addCommas(n);
+    case'dec1': return n.toFixed(1);
+    case'dec2': return n.toFixed(2);
+    case'dec2s':return n.toFixed(2)+'s';
+    case'pct':  return(Math.abs(n)<=1.5?n*100:n).toFixed(1)+'%';
+    case'cpoe': return n.toFixed(2)+'%';
+    default:    return n.toFixed(1);
+  }
+}
+function numVal(raw){const n=+raw;return isNaN(n)?null:n;}
+
+// ── LOAD DATA ────────────────────────────────────────────
+async function loadData(){
+  // Try cache first
+  const cached=loadCache();
+  if(cached){
+    applyData(cached.qb,cached.rb,cached.rec);
+    refreshBg();
+    return;
+  }
+  document.getElementById('dataStatus').textContent='Loading...';
+  try{
+    const qbP=fetchWithFallback(SHEETS.QB).then(parseCSV);
+    const rbP=fetchWithFallback(SHEETS.RB).then(parseCSV);
+    const recP=fetchWithFallback(SHEETS.REC).then(parseCSV);
+    const[qb,rb,rec]=await Promise.all([qbP,rbP,recP]);
+    applyData(qb,rb,rec);
+    saveCache(qb,rb,rec);
+  }catch(e){
+    document.getElementById('dataStatus').textContent='Load Failed';
+    document.getElementById('dataStatus').style.color='#ef4444';
+  }
+}
+function applyData(qb,rb,rec){
+  allData.QB=qb;allData.RB=rb;allData.WR=[];allData.TE=[];
+  rec.forEach(r=>{
+    const p=(r['player_position']||'WR').trim().toUpperCase();
+    if(p==='TE')allData.TE.push(r);else allData.WR.push(r);
+  });
+  dataReady=true;
+  const tot=qb.length+rb.length+allData.WR.length+allData.TE.length;
+  document.getElementById('dataStatus').textContent=tot+' Players';
+  renderSelectors();
+  renderComparison();
+}
+async function refreshBg(){
+  try{
+    const[qb,rb,rec]=await Promise.all([
+      fetchWithFallback(SHEETS.QB).then(parseCSV),
+      fetchWithFallback(SHEETS.RB).then(parseCSV),
+      fetchWithFallback(SHEETS.REC).then(parseCSV),
+    ]);
+    saveCache(qb,rb,rec);
+  }catch(e){}
+}
+
+// ── SELECTORS ────────────────────────────────────────────
+const SLOT_NAMES=['Player 1','Player 2','Player 3','Player 4'];
+
+function renderSelectors(){
+  const container=document.getElementById('selectors');
+  container.innerHTML='';
+
+  // Determine which slots to show: all filled ones + one empty (if <4 filled)
+  const filledCount=state.players.filter(Boolean).length;
+  const showCount=Math.min(4, filledCount+1); // always show one empty "add" slot unless all 4 filled
+
+  // Dynamic grid columns based on how many slots are showing
+  container.style.gridTemplateColumns=`repeat(${showCount},1fr)`;
+
+  for(let i=0;i<showCount;i++){
+    const color=PLAYER_COLORS[i];
+    const player=state.players[i];
+    const div=document.createElement('div');
+    div.className='player-slot'+(player?' has-player':'');
+    div.style.setProperty('--slot-color',color);
+
+    div.innerHTML=`
+      <div class="slot-label">
+        <span class="slot-dot"></span>
+        ${SLOT_NAMES[i]}
+      </div>
+      <div class="slot-search" id="slotSearch${i}" style="${player?'display:none':''}">
+        <input type="text" placeholder="Search ${state.pos}..." autocomplete="off"
+          id="slotInput${i}" data-slot="${i}">
+        <div class="slot-dropdown" id="slotDrop${i}"></div>
+      </div>
+      <div class="slot-selected ${player?'show':''}" id="slotSel${i}">
+        <div class="slot-selected-info">
+          <div class="slot-sel-name">${player?player['display_name']:''}</div>
+          <div class="slot-sel-team">${player?(player['posteam']||player['team_abbr']||''):''}</div>
+        </div>
+        <button class="slot-clear" data-slot="${i}" title="Remove">✕</button>
+      </div>`;
+    container.appendChild(div);
+  }
+
+  // Bind events only for shown slots
+  for(let i=0;i<showCount;i++){
+    const inp=document.getElementById(`slotInput${i}`);
+    if(!inp)continue;
+    const drop=document.getElementById(`slotDrop${i}`);
+    inp.addEventListener('input',()=>handleSlotSearch(i,inp.value,drop));
+    inp.addEventListener('focus',()=>{ if(inp.value) handleSlotSearch(i,inp.value,drop); });
+    inp.addEventListener('keydown',e=>{ if(e.key==='Escape'){drop.classList.remove('open');inp.blur();} });
+  }
+  document.querySelectorAll('.slot-clear').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const i=+btn.dataset.slot;
+      // Remove and compact: shift remaining players down
+      state.players.splice(i,1);
+      state.players.push(null);
+      renderSelectors();
+      renderComparison();
+    });
+  });
+  document.addEventListener('click',closeDropdowns,{once:false});
+}
+
+function closeDropdowns(e){
+  if(!e.target.closest('.slot-search')){
+    document.querySelectorAll('.slot-dropdown').forEach(d=>d.classList.remove('open'));
+  }
+}
+
+function handleSlotSearch(slot,query,drop){
+  const q=query.trim().toLowerCase();
+  if(!q||!dataReady){drop.classList.remove('open');return;}
+  const pool=allData[state.pos];
+  const results=pool
+    .filter(p=>(p['display_name']||'').toLowerCase().includes(q))
+    .slice(0,20);
+  if(!results.length){drop.classList.remove('open');return;}
+  drop.innerHTML=results.map(p=>{
+    const team=(p['posteam']||p['team_abbr']||'').toUpperCase();
+    return`<div class="drop-item" data-slot="${slot}" data-name="${p['display_name']}">
+      <span>${p['display_name']}</span>
+      <span class="drop-team">${team}</span>
+    </div>`;
+  }).join('');
+  drop.classList.add('open');
+  drop.querySelectorAll('.drop-item').forEach(item=>{
+    item.addEventListener('mousedown',e=>{
+      e.preventDefault();
+      const name=item.dataset.name;
+      const player=allData[state.pos].find(p=>p['display_name']===name);
+      if(player){
+        state.players[+item.dataset.slot]=player;
+        drop.classList.remove('open');
+        renderSelectors();
+        renderComparison();
+      }
+    });
+  });
+}
+
+// ── CATEGORY TABS ────────────────────────────────────────
+function renderCatBar(){
+  const defs=COMP_DEFS[state.pos];
+  const bar=document.getElementById('catBar');
+  bar.innerHTML=defs.map((d,i)=>
+    `<button class="cat-btn${i===state.cat?' active':''}" onclick="setCat(${i})">${d.cat}</button>`
+  ).join('');
+}
+function setCat(i){state.cat=i;renderCatBar();renderComparison();}
+
+// ── COMPARISON TABLE ─────────────────────────────────────
+function renderComparison(){
+  const activePlayers=state.players.filter(Boolean);
+  const placeholder=document.getElementById('compPlaceholder');
+  const table=document.getElementById('compTable');
+  const legend=document.getElementById('legend');
+
+  if(activePlayers.length<2){
+    placeholder.style.display='block';table.style.display='none';legend.style.display='none';
+    return;
+  }
+  placeholder.style.display='none';table.style.display='block';legend.style.display='flex';
+
+  // Only use filled slots — no empty columns in comparison
+  const slots=state.players.filter(Boolean);
+  const nCols=slots.length;
+  const defs=COMP_DEFS[state.pos][state.cat];
+
+  // Stat label col is fixed, player cols share remaining space equally
+  const statColWidth=window.innerWidth<=680?'100px':'160px';
+  const gridTemplate=`${statColWidth} repeat(${nCols}, 1fr)`;
+
+  let html='';
+
+  // ── Header row ──
+  html+=`<div class="comp-header" style="grid-template-columns:${gridTemplate}">`;
+  html+=`<div class="comp-header-stat">STAT</div>`;
+  for(let i=0;i<nCols;i++){
+    const p=slots[i];
+    // Find original slot index for correct color
+    const colorIdx=state.players.indexOf(p);
+    const color=PLAYER_COLORS[colorIdx];
+    const name=p['display_name']||'';
+    const team=(p['posteam']||p['team_abbr']||'').toUpperCase();
+    html+=`<div class="comp-header-player">
+      <div class="php-bar" style="background:${color}"></div>
+      <div class="php-name">${name}</div>
+      <div class="php-team">${team}</div>
+    </div>`;
+  }
+  html+='</div>';
+
+  // ── Stat sections ──
+  for(const section of defs.sections){
+    html+=`<div class="comp-section" style="grid-template-columns:${gridTemplate}">
+      <div class="comp-section-label">${section.sec}</div>
+    </div>`;
+
+    for(const stat of section.stats){
+      const vals=slots.map(p=>numVal(p[stat.k]));
+      const defined=vals.filter(v=>v!==null);
+
+      let bestVal=null;
+      if(defined.length>=2){
+        bestVal=LOWER_IS_BETTER.has(stat.k)?Math.min(...defined):Math.max(...defined);
+      }
+
+      const minV=defined.length?Math.min(...defined):0;
+      const maxV=defined.length?Math.max(...defined):1;
+      const range=maxV-minV||1;
+
+      html+=`<div class="comp-row" style="grid-template-columns:${gridTemplate}">`;
+      html+=`<div class="comp-stat-label">
+        <span>${stat.lab}</span>
+        <span class="comp-stat-desc">${stat.desc}</span>
+      </div>`;
+
+      for(let i=0;i<nCols;i++){
+        const p=slots[i];
+        const colorIdx=state.players.indexOf(p);
+        const color=PLAYER_COLORS[colorIdx];
+        const raw=p[stat.k];
+        const nv=numVal(raw);
+        const display=fmtVal(raw,stat.fmt);
+        const isBest=bestVal!==null&&nv!==null&&Math.abs(nv-bestVal)<0.0001;
+
+        let barPct=0;
+        if(nv!==null&&defined.length>1){
+          barPct=LOWER_IS_BETTER.has(stat.k)
+            ?((maxV-nv)/range)*100
+            :((nv-minV)/range)*100;
+          barPct=Math.max(5,Math.min(100,barPct));
+        }
+
+        html+=`<div class="comp-cell${isBest?' best':''}" style="--cell-accent:${color}">
+          ${barPct>0?`<div class="cell-bar" style="background:${color};width:${barPct}%"></div>`:''}
+          <span style="position:relative;z-index:1">${display}</span>
+        </div>`;
+      }
+      html+='</div>';
+    }
+  }
+
+  table.innerHTML=html;
+
+  // Legend
+  const lp=document.getElementById('legendPlayers');
+  lp.innerHTML=activePlayers.map(p=>{
+    const colorIdx=state.players.indexOf(p);
+    return`<span class="legend-item"><span class="legend-dot" style="background:${PLAYER_COLORS[colorIdx]}"></span>${p['display_name'].split(' ').pop()}</span>`;
+  }).join('');
+}
+
+// ── SCREENSHOT ───────────────────────────────────────────
+document.getElementById('screenshotBtn').addEventListener('click',async()=>{
+  const btn=document.getElementById('screenshotBtn');
+  btn.textContent='Saving...';
+
+  // Use html2canvas if available, else fallback to print dialog
+  if(typeof html2canvas!=='undefined'){
+    try{
+      const el=document.getElementById('compCapture');
+      const canvas=await html2canvas(el,{
+        backgroundColor:'#0d1526',scale:2,useCORS:true,logging:false
+      });
+      const link=document.createElement('a');
+      link.download=`xep-comparison-${state.pos}-${Date.now()}.png`;
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+    }catch(e){}
+  }else{
+    // Clean fallback: open print dialog scoped to the comparison card
+    const style=document.createElement('style');
+    style.id='print-style';
+    style.textContent=`@media print{body>*{display:none!important;}.page{display:block!important;padding:0!important;max-width:none!important;}#compCapture{display:block!important;}.topbar,.controls,.selectors,.cat-bar,.legend,.scroll-hint{display:none!important;}}`;
+    document.head.appendChild(style);
+    window.print();
+    setTimeout(()=>document.getElementById('print-style')?.remove(),1000);
+  }
+  btn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M3 9V6a1 1 0 0 1 1-1h3M21 9V6a1 1 0 0 0-1-1h-3M3 15v3a1 1 0 0 0 1 1h3M21 15v3a1 1 0 0 1-1 1h-3"/></svg>Screenshot`;
+});
+
+// ── POSITION SWITCHER ────────────────────────────────────
+document.getElementById('posSwitcher').addEventListener('click',e=>{
+  const b=e.target.closest('.pos-btn');
+  if(!b)return;
+  state.pos=b.dataset.pos;
+  state.cat=0;
+  state.players=[null,null,null,null];
+  document.querySelectorAll('.pos-btn').forEach(btn=>{
+    btn.className='pos-btn'+(btn.dataset.pos===state.pos?' active-'+state.pos:'');
+  });
+  renderCatBar();
+  renderSelectors();
+  renderComparison();
+});
+
+// ── INIT ─────────────────────────────────────────────────
+(function init(){
+  // Activate QB
+  document.querySelector('[data-pos="QB"]').className='pos-btn active-QB';
+  renderCatBar();
+  renderSelectors();
+
+  // Show loading in table
+  document.getElementById('compTable').innerHTML=`<div class="loading-wrap"><div class="spinner"></div>Loading player data...</div>`;
+  document.getElementById('compPlaceholder').style.display='none';
+  document.getElementById('compTable').style.display='block';
+
+  loadData();
+})();
+</script>
+</body>
+</html>
