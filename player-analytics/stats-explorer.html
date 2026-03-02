@@ -160,6 +160,7 @@ thead th{
   white-space:nowrap;padding:0;user-select:none;
 }
 thead tr:nth-child(2) th{
+  /* top is set dynamically by JS after render — see fixSecondHeaderTop() */
   top:44px;z-index:19;background:#091428;border-bottom:1px solid rgba(42,64,112,.7);
 }
 .th-btn{
@@ -179,27 +180,36 @@ th.is-sorted .sort-icon{opacity:1;color:var(--blue);}
 /* ── FROZEN COLUMNS — rank + player ── */
 /* col 1: rank */
 th:nth-child(1),td:nth-child(1){
-  position:sticky;left:0;z-index:11;
+  position:sticky;left:0;z-index:12;
   width:var(--w-rank);min-width:var(--w-rank);max-width:var(--w-rank);
-  background:#0d1526; /* solid — never transparent */
+  background:#0d1526;
 }
 /* col 2: player */
 th:nth-child(2),td:nth-child(2){
-  position:sticky;left:var(--w-rank);z-index:11;
+  position:sticky;left:var(--w-rank);z-index:12;
   width:var(--w-player);min-width:var(--w-player);
-  background:#0d1526; /* solid */
-  border-right:1px solid rgba(42,64,112,.6);
+  background:#0d1526;
+  /* hard shadow separator — covers scrolling content behind it */
+  box-shadow:4px 0 8px 2px #060a14;
 }
-/* header backgrounds for frozen cols */
-thead th:nth-child(1),thead th:nth-child(2){background:#0e1e4a;z-index:26;}
+/* header frozen cols — higher z so they sit above body frozen cols */
+thead th:nth-child(1),thead th:nth-child(2){
+  background:#0e1e4a;z-index:28;
+  box-shadow:none; /* header gets border not shadow */
+}
+thead th:nth-child(2){
+  border-right:1px solid rgba(42,64,112,.6);
+  box-shadow:4px 0 8px 2px #060a14;
+}
 thead tr:nth-child(2) th:nth-child(1),
-thead tr:nth-child(2) th:nth-child(2){background:#091428;}
+thead tr:nth-child(2) th:nth-child(2){background:#091428;z-index:28;}
+thead tr:nth-child(2) th:nth-child(2){box-shadow:4px 0 8px 2px #060a14;}
 
-/* Frozen col backgrounds must stay solid in ALL row states */
+/* Frozen col body backgrounds — fully opaque, all states */
 tbody tr:nth-child(even) td:nth-child(1),
 tbody tr:nth-child(even) td:nth-child(2){background:#08101e !important;}
-tbody tr:nth-child(odd) td:nth-child(1),
-tbody tr:nth-child(odd) td:nth-child(2){background:#0d1526 !important;}
+tbody tr:nth-child(odd)  td:nth-child(1),
+tbody tr:nth-child(odd)  td:nth-child(2){background:#0d1526 !important;}
 tbody tr:hover td:nth-child(1),
 tbody tr:hover td:nth-child(2){background:#0f2040 !important;}
 
@@ -262,76 +272,76 @@ td.stat.is-sorted-col{color:#fff;}
    ════════════════════════════════════════════ */
 @media(max-width:680px){
   :root{
-    --w-rank:32px;
-    --w-player:130px;
+    --w-rank:26px;
+    --w-player:115px;
   }
 
-  .page{padding:0 10px 28px;}
+  /* minimal outer padding — embedded context */
+  .page{padding:0 4px 20px;}
 
-  /* top bar */
-  .topbar{padding:10px 0 8px;gap:8px;}
-  .brand img{height:24px;}
-  .brand-title{font-size:14px;letter-spacing:2px;}
-  .brand-sub{font-size:9px;}
-  #playerCountBadge{font-size:10px;padding:3px 8px;}
+  /* ── top bar ── */
+  .topbar{padding:8px 0 7px;gap:8px;}
+  .brand img{height:20px;}
+  .brand-title{font-size:13px;letter-spacing:1.5px;}
+  .brand-sub{font-size:8px;letter-spacing:1px;}
+  #playerCountBadge{font-size:10px;padding:3px 8px;letter-spacing:.5px;}
 
-  /* controls — pos + cats on row 1, search full-width row 2 */
-  .controls{flex-wrap:wrap;gap:6px;padding:6px 0 4px;}
-  .pos-btn{font-size:12px;padding:6px 11px;letter-spacing:1.5px;}
-  .cat-wrap{flex:1;min-width:0;}           /* fill remaining space on row 1 */
-  .cat-btn{font-size:11px;padding:6px 10px;letter-spacing:1px;}
-  .search-wrap{
-    order:9;flex-basis:100%;width:100%;    /* pushes to its own row */
+  /* ── controls: 3 clean stacked rows
+     Row 1: pos switcher
+     Row 2: category tabs (full width, horizontally scrollable)
+     Row 3: search (full width)                               */
+  .controls{
+    flex-direction:column;
+    align-items:stretch;
+    gap:5px;
+    padding:6px 0 4px;
   }
-  #searchBox{
-    width:100%;
-    font-size:16px;                        /* prevents iOS auto-zoom */
-    padding:9px 12px 9px 32px;
-  }
+  .pos-switcher{align-self:flex-start;}
+  .pos-btn{font-size:11px;padding:6px 12px;letter-spacing:1px;border-radius:6px;}
+  .cat-wrap{width:100%;flex-shrink:0;}
+  .cat-btn{font-size:10px;padding:6px 10px;letter-spacing:.8px;}
+  .search-wrap{width:100%;}
+  #searchBox{width:100%;font-size:16px;padding:8px 12px 8px 30px;}
   .row-count{display:none;}
 
-  /* dictionary — compact wrap */
-  .dict-bar{padding:5px 10px;}
-  .dict-inner{flex-wrap:wrap;row-gap:3px;}
-  .dict-entry{padding:1px 8px 1px 0;margin-right:8px;}
-  .dict-abbr{font-size:11px;}
-  .dict-desc{font-size:10px;}
+  /* ── dictionary ── */
+  .dict-bar{padding:4px 8px;margin-bottom:3px;}
+  .dict-inner{flex-wrap:wrap;row-gap:2px;}
+  .dict-entry{padding:1px 6px 1px 0;margin-right:6px;}
+  .dict-abbr{font-size:10px;letter-spacing:.8px;}
+  .dict-desc{font-size:9px;}
 
   /* scroll hint */
   .scroll-hint{display:flex;}
 
-  /* table area — viewport-relative height on mobile */
-  .table-area{
-    height:70vh;
-    min-height:380px;
-    border-radius:10px;
-  }
+  /* ── table area ── */
+  .table-area{height:68vh;min-height:340px;border-radius:8px;}
 
-  /* cells */
-  td{padding:9px 8px;font-size:13px;}
-  td:nth-child(1){padding:9px 0;font-size:12px;}
-  td:nth-child(2){padding:9px 10px;}
-  td.stat{font-size:13px;min-width:58px;padding:9px 8px;}
+  /* ── header buttons ── */
+  .th-btn{font-size:10px;font-weight:900;padding:7px 5px;letter-spacing:.6px;gap:2px;}
+  .sort-icon{font-size:7px;}
+  .grp-hd{padding:5px 6px !important;font-size:9px;letter-spacing:1px;}
 
-  /* player name stacks above team */
-  .pcell{flex-direction:column;align-items:flex-start;gap:1px;}
-  .pname{font-size:13px;line-height:1.2;}
-  .pteam{font-size:10px;}
-
-  /* headers */
-  .th-btn{font-size:11px;padding:9px 8px;letter-spacing:1px;}
-  .sort-icon{font-size:8px;}
+  /* ── body cells ── */
+  td{padding:8px 5px;font-size:12px;font-weight:600;}
+  td:nth-child(1){padding:8px 0;font-size:11px;}
+  td:nth-child(2){padding:8px 6px;}
+  .pcell{flex-direction:column;align-items:flex-start;gap:0;}
+  .pname{font-size:12px;font-weight:800;line-height:1.2;}
+  .pteam{font-size:9px;letter-spacing:.5px;}
+  td.stat{font-size:12px;min-width:44px;padding:8px 3px;text-align:center;}
 }
 
-/* very small phones */
+/* ── very small phones ≤ 360px ── */
 @media(max-width:360px){
-  :root{--w-rank:28px;--w-player:110px;}
-  .pos-btn{font-size:11px;padding:5px 8px;}
-  .cat-btn{font-size:10px;padding:5px 8px;}
-  td{padding:8px 6px;font-size:12px;}
-  td.stat{font-size:12px;min-width:50px;padding:8px 5px;}
-  .pname{font-size:12px;}
-  .th-btn{font-size:10px;padding:8px 6px;}
+  :root{--w-rank:22px;--w-player:98px;}
+  .page{padding:0 2px 16px;}
+  .pos-btn{font-size:10px;padding:5px 9px;}
+  .cat-btn{font-size:9px;padding:5px 7px;}
+  td{padding:7px 4px;font-size:11px;}
+  td.stat{font-size:11px;min-width:38px;padding:7px 2px;}
+  .pname{font-size:11px;}
+  .th-btn{font-size:9px;padding:6px 4px;}
 }
 </style>
 </head>
@@ -839,11 +849,32 @@ function render(){
     parts.push('</tr>');
   }
   $tbody.innerHTML=parts.join('');
+
+  // Fix second header row top offset (route depth has 2 header rows)
+  // Use rAF so the browser has painted the first row before we measure it
+  requestAnimationFrame(fixSecondHeaderTop);
 }
 
 function depthDesc(lab){
   const map={TGT:'Targets',REC:'Receptions',YDS:'Yards',EPA:'Expected Points Added','CMP%':'Completion %',ATT:'Attempts'};
   return map[lab]||lab;
+}
+
+/* ── FIX SECOND HEADER ROW TOP ──────────────────────────────
+   Route-depth tabs have 2 thead rows. The second row must sit
+   exactly below the first. We measure the first row's actual
+   rendered height and set top dynamically — this works on both
+   desktop and mobile where the header height differs.
+──────────────────────────────────────────────────────────── */
+function fixSecondHeaderTop(){
+  const firstRow = document.querySelector('#thead tr:nth-child(1)');
+  const secondRow = document.querySelector('#thead tr:nth-child(2)');
+  if(!firstRow || !secondRow) return;
+  const h = firstRow.getBoundingClientRect().height;
+  // Apply to every th in the second row
+  secondRow.querySelectorAll('th').forEach(th=>{
+    th.style.top = Math.ceil(h) + 'px';
+  });
 }
 
 /* ── CONTROLS ── */
@@ -875,6 +906,9 @@ document.getElementById('posSwitcher').addEventListener('click',e=>{
 document.getElementById('searchBox').addEventListener('input',e=>{
   state.search=e.target.value;render();
 });
+
+// Re-fix second header top on resize (orientation change etc)
+window.addEventListener('resize',()=>requestAnimationFrame(fixSecondHeaderTop));
 
 /* ── Mobile scroll hint ── */
 (function(){
