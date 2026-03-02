@@ -106,16 +106,16 @@
   .ac-pos.WR { background: rgba(245,158,11,0.2); color: #fbbf24; }
   .ac-pos.TE { background: rgba(168,85,247,0.2); color: #c084fc; }
   .ac-name { font-weight: 600; font-size: 16px; }
-  .ac-team { font-size: 13px; color: var(--text-muted); margin-left: auto; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px; }
+  .ac-team { font-size: 13px; color: var(--text-muted); margin-left: auto; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px; text-transform: uppercase; }
 
-  /* TOP 5 TABLES */
+  /* TOP 5 TABLES — locked layout, never changes */
   .top5-section {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     margin-bottom: 32px;
+    width: 100%;
   }
-  @media (max-width: 900px) { .top5-section { grid-template-columns: repeat(2, 1fr); } }
 
   .top5-card {
     background: var(--surface);
@@ -124,10 +124,12 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
   .top5-body {
     max-height: 340px;
     overflow-y: auto;
+    overflow-x: hidden;
   }
   .top5-body::-webkit-scrollbar { width: 4px; }
   .top5-body::-webkit-scrollbar-track { background: transparent; }
@@ -139,9 +141,6 @@
     padding: 10px 12px;
     border-bottom: 1px solid var(--border);
     background: rgba(20,36,92,0.5);
-    position: sticky;
-    top: 0;
-    z-index: 1;
   }
   .top5-pos {
     font-family: 'Roboto Condensed', sans-serif;
@@ -150,6 +149,7 @@
     letter-spacing: 1px;
     padding: 2px 7px;
     border-radius: 4px;
+    flex-shrink: 0;
   }
   .top5-pos.QB { background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
   .top5-pos.RB { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
@@ -162,6 +162,9 @@
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .top5-stat-lbl {
     margin-left: auto;
@@ -170,26 +173,30 @@
     letter-spacing: 1px;
     color: var(--text-muted);
     text-transform: uppercase;
+    flex-shrink: 0;
   }
+  /* Use table-like structure for rows to prevent layout shifts */
   .top5-row {
-    display: grid !important;
-    grid-template-columns: 24px 1fr auto;
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     padding: 8px 12px;
     border-bottom: 1px solid rgba(30,48,88,0.35);
     cursor: pointer;
     transition: background 0.15s;
+    min-width: 0;
   }
   .top5-row:last-child { border-bottom: none; }
   .top5-row:hover { background: var(--blue-glow); }
   .top5-rank {
     font-family: 'Roboto Condensed', sans-serif;
     font-weight: 800;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-muted);
     text-align: center;
     flex-shrink: 0;
+    line-height: 1;
   }
   .top5-rank.gold { color: var(--gold); }
   .top5-name {
@@ -201,18 +208,26 @@
     white-space: nowrap;
     min-width: 0;
     font-family: 'Roboto Condensed', sans-serif;
+    line-height: 1.3;
   }
   .top5-name small {
-    display: inline;
-    font-size: 11px;
+    display: block;
+    font-size: 10px;
     font-weight: 400;
     color: var(--text-muted);
     font-family: 'Roboto Condensed', sans-serif;
     letter-spacing: 1px;
     text-transform: uppercase;
-    margin-left: 4px;
+    margin-top: 1px;
   }
-  .top5-val { font-family: 'Roboto Condensed', sans-serif; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; }
+  .top5-val {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+    text-align: right;
+  }
 
   /* LOADING */
   #loadingMsg {
@@ -251,7 +266,7 @@
     display: flex;
     align-items: center;
     gap: 18px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     position: relative;
     overflow: hidden;
   }
@@ -303,6 +318,7 @@
     cursor: pointer;
     transition: background 0.2s;
     margin-bottom: 16px;
+    display: inline-block;
   }
   .back-btn:hover { background: rgba(59,130,246,0.2); }
   .pos-badge {
@@ -313,12 +329,13 @@
     padding: 8px 16px;
     border-radius: 8px;
     line-height: 1;
+    flex-shrink: 0;
   }
   .pos-badge.QB { background: rgba(59,130,246,0.15); border: 1.5px solid rgba(59,130,246,0.4); color: #60a5fa; }
   .pos-badge.RB { background: rgba(34,197,94,0.15); border: 1.5px solid rgba(34,197,94,0.4); color: #4ade80; }
   .pos-badge.WR { background: rgba(245,158,11,0.15); border: 1.5px solid rgba(245,158,11,0.4); color: #fbbf24; }
   .pos-badge.TE { background: rgba(168,85,247,0.15); border: 1.5px solid rgba(168,85,247,0.4); color: #c084fc; }
-  .player-info { flex: 1; }
+  .player-info { flex: 1; min-width: 0; }
   .player-name {
     font-family: 'Roboto Condensed', sans-serif;
     font-weight: 900;
@@ -390,8 +407,8 @@
     border-bottom: 1px solid var(--border);
   }
   .stat-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)) !important;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
     gap: 10px;
   }
   .stat-card {
@@ -475,40 +492,67 @@
   #emptyState { text-align: center; padding: 60px 20px; color: var(--text-muted); display: none; }
   #emptyState p { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; }
 
-  /* ── MOBILE & RESPONSIVE ────────────────────────────── */
+  /* ── TABLET ─────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .top5-section { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── MOBILE ─────────────────────────────────────────── */
   @media (max-width: 600px) {
     .wrap { padding: 0 10px 50px; }
-
     .search-section { padding: 20px 0 14px; }
     #playerSearch { font-size: 16px; padding: 13px 14px; }
 
-    /* Leaders: 2-col */
-    .top5-section { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
-    .top5-body { max-height: 220px; }
+    /* Leaders: locked 2-col, no exceptions */
+    .top5-section {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px;
+    }
+    .top5-body { max-height: 260px; }
+    .top5-head { padding: 8px 10px; gap: 5px; }
+    .top5-pos { font-size: 10px; padding: 2px 5px; letter-spacing: 0; }
+    .top5-title { font-size: 10px; letter-spacing: 0.5px; }
+    .top5-stat-lbl { font-size: 9px; }
+    .top5-row {
+      grid-template-columns: 18px 1fr auto;
+      padding: 7px 8px;
+      gap: 5px;
+    }
+    .top5-rank { font-size: 11px; }
     .top5-name { font-size: 12px; }
+    .top5-name small { font-size: 9px; margin-top: 0; }
     .top5-val { font-size: 13px; }
-    .top5-head { padding: 8px 10px; }
-    .top5-row { padding: 6px 8px; gap: 5px; }
-    .top5-rank { font-size: 12px; }
 
-    /* Player header */
-    .player-header { padding: 12px; gap: 10px; }
+    /* Player header — NO logo on mobile */
+    .player-header {
+      padding: 12px 14px;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+    .header-logo { display: none !important; }
     .pos-badge { font-size: 18px; padding: 5px 10px; }
     .player-name { font-size: clamp(18px, 6.5vw, 28px); letter-spacing: 1px; }
     .player-meta { font-size: 10px; letter-spacing: 0.5px; }
-    .header-logo img { height: 26px; max-width: 66px; }
-    .header-logo-fallback { font-size: 14px; }
     .back-btn { font-size: 11px; padding: 6px 12px; }
 
-    /* Tabs — hide scrollbar, allow horizontal swipe */
+    /* Tabs */
     .tabs { padding: 3px; gap: 2px; }
-    .tab-btn { font-size: 10px !important; padding: 7px 6px !important; min-width: 0 !important; letter-spacing: 0.5px; flex: 1 1 0; }
+    .tab-btn {
+      font-size: 10px !important;
+      padding: 7px 6px !important;
+      min-width: 0 !important;
+      letter-spacing: 0.5px;
+      flex: 1 1 0;
+    }
 
     /* Stat section titles */
     .stat-section-title { font-size: 11px; letter-spacing: 1.5px; margin: 12px 0 8px; }
 
     /* Stat cards: force 2 columns */
-    .stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 7px; }
+    .stat-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 7px;
+    }
     .stat-card { padding: 10px 9px; }
     .stat-label { font-size: 9px; letter-spacing: 0.3px; padding-bottom: 3px; margin-bottom: 4px; }
     .stat-value { font-size: 22px; }
@@ -517,7 +561,11 @@
     /* Percentile bars */
     .perc-bar-wrap { padding: 12px 10px; }
     .perc-bar-title { font-size: 10px; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 5px; }
-    .perc-row { grid-template-columns: 90px 1fr 42px !important; gap: 7px; margin-bottom: 8px; }
+    .perc-row {
+      grid-template-columns: 90px 1fr 42px;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
     .perc-name { font-size: 11px; }
     .perc-track { height: 6px; }
     .perc-num { font-size: 12px; }
@@ -525,8 +573,8 @@
 
   /* Very small phones */
   @media (max-width: 360px) {
-    .top5-section { grid-template-columns: 1fr !important; }
-    .perc-row { grid-template-columns: 78px 1fr 38px !important; }
+    .top5-section { grid-template-columns: repeat(2, 1fr) !important; }
+    .perc-row { grid-template-columns: 78px 1fr 38px; }
     .stat-value { font-size: 19px; }
     .player-name { font-size: 16px; }
     .tab-btn { font-size: 9px !important; padding: 6px 4px !important; }
@@ -558,9 +606,12 @@
 </div>
 
 <script>
+// ─── PROXY STRATEGY ──────────────────────────────────────────────────────────
+// Try the fastest proxy first, then fallback. Timeout tuned down to 6s to fail
+// faster and not make the user wait on a dead proxy.
 const PROXIES = [
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
 ];
 
@@ -570,19 +621,24 @@ const SHEETS = {
   REC: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1048851676&single=true&output=csv'
 };
 
+// Session-level cache so repeat visits in same tab are instant
+const _cache = {};
+
 let allPlayers = [];
 
 async function fetchWithFallback(url) {
+  if (_cache[url]) return _cache[url];
   let lastErr;
   for (const makeProxy of PROXIES) {
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 9000);
+      const timer = setTimeout(() => controller.abort(), 6000); // 6s timeout per proxy
       const res = await fetch(makeProxy(url), { signal: controller.signal });
       clearTimeout(timer);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
-      if (!text || text.trim().length < 50) throw new Error('Empty or invalid response');
+      if (!text || text.trim().length < 50) throw new Error('Empty response');
+      _cache[url] = text; // cache on success
       return text;
     } catch(e) {
       lastErr = e;
@@ -621,6 +677,7 @@ function splitCSVLine(line) {
 
 async function loadAll(isRetry = false) {
   try {
+    // Kick off all three fetches simultaneously
     const [qbData, rbData, recData] = await Promise.all([
       fetchCSV(SHEETS.QB),
       fetchCSV(SHEETS.RB),
@@ -645,17 +702,13 @@ async function loadAll(isRetry = false) {
     buildTop5();
     document.getElementById('top5Section').style.display = 'block';
   } catch(e) {
-    document.getElementById('loadingMsg').innerHTML =
-      `<p style="color:#ef4444;font-family:'Roboto Condensed',sans-serif;letter-spacing:1px;font-size:15px;margin-bottom:16px">Failed to load data — retrying...</p>`;
-    // Auto-retry once after 2s
-    setTimeout(() => {
-      document.getElementById('loadingMsg').innerHTML = `<span class="spinner"></span>RETRYING...`;
-      loadAll(true);
-    }, 2000);
     if (isRetry) {
       document.getElementById('loadingMsg').innerHTML =
         `<p style="color:#ef4444;font-family:'Roboto Condensed',sans-serif;letter-spacing:1px;font-size:15px;margin-bottom:14px">Failed to load data.</p>
          <button onclick="location.reload()" style="background:var(--blue);border:none;color:#fff;font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 24px;border-radius:7px;cursor:pointer;">Reload Page</button>`;
+    } else {
+      document.getElementById('loadingMsg').innerHTML = `<span class="spinner"></span>RETRYING...`;
+      setTimeout(() => loadAll(true), 1500);
     }
     console.error(e);
   }
@@ -668,10 +721,10 @@ function buildTop5() {
     .sort((a,b) => parseFloat(b.data[stat]||0) - parseFloat(a.data[stat]||0));
 
   const groups = [
-    { pos: 'QB', label: 'Passing Yards', stat: 'YDS', players: top('QB','YDS') },
-    { pos: 'RB', label: 'Rushing Yards', stat: 'YDS', players: top('RB','YDS') },
-    { pos: 'WR', label: 'Receiving Yards', stat: 'YDS', players: top('WR','YDS') },
-    { pos: 'TE', label: 'Receiving Yards', stat: 'YDS', players: top('TE','YDS') },
+    { pos: 'QB', label: 'Pass Yards', stat: 'YDS', players: top('QB','YDS') },
+    { pos: 'RB', label: 'Rush Yards', stat: 'YDS', players: top('RB','YDS') },
+    { pos: 'WR', label: 'Rec Yards',  stat: 'YDS', players: top('WR','YDS') },
+    { pos: 'TE', label: 'Rec Yards',  stat: 'YDS', players: top('TE','YDS') },
   ];
 
   grid.innerHTML = groups.map(g => `
@@ -763,14 +816,12 @@ function fmt(val, dec=1) {
   if (val===null||val===undefined||val===''||isNaN(+val)) return '—';
   return parseFloat(val).toFixed(dec);
 }
-// Values stored as 0–1 decimals (e.g. 0.703 = 70.3%)
 function fmtPct(val) {
   if (!val||isNaN(+val)) return '—';
   const n = parseFloat(val);
   const scaled = Math.abs(n) <= 1.5 ? n * 100 : n;
   return scaled.toFixed(1)+'%';
 }
-// Values that are already a number but need a % sign (CPOE etc.)
 function fmtNum(val, dec=2) {
   if (val===null||val===undefined||val===''||isNaN(+val)) return '—';
   return parseFloat(val).toFixed(dec)+'%';
@@ -1005,7 +1056,7 @@ function renderQB(player, d, card) {
 function renderRB(player, d, card) {
   card.innerHTML = `
     ${playerHeader(player)}
-    ${tabsHTML(['Overview','Efficiency','Gap+Alignment','Situation','NGS'])}
+    ${tabsHTML(['Overview','Efficiency','Gap','Situation','NGS'])}
     <div id="tab-Overview" class="tab-panel active">
       <div class="stat-section-title">Core Stats</div>
       <div class="stat-grid">
@@ -1051,7 +1102,7 @@ function renderRB(player, d, card) {
         ${percBar('Rush % OE', d['rush_pct_over_expected_PERC'])}
       </div>
     </div>
-    <div id="tab-GapAlignment" class="tab-panel">
+    <div id="tab-Gap" class="tab-panel">
       <div class="stat-section-title">Shotgun vs Under Center</div>
       <div class="stat-grid">
         ${statCard('Shotgun Att', fmt(d['Shotgun_ATT'],0), d['Shotgun_ATT_PERC'])}
@@ -1211,8 +1262,7 @@ function renderREC(player, d, card) {
       </div>
     </div>
   `;
-  // Fix the Full Percentiles tab button to match panel ID
-  card.querySelector('[data-tab="Full-Percentiles"]') && 
+  card.querySelector('[data-tab="Full-Percentiles"]') &&
     card.querySelector('[data-tab="Full-Percentiles"]').setAttribute('data-tab','FullPercentiles');
   initTabs(card);
 }
