@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFL Draft Combine Explorer | xep.ai</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d1526;
+  --bg2:     #111d35;
+  --bg3:     #162040;
+  --border:  #1e2d50;
+  --accent:  #3b82f6;
+  --accent2: #60a5fa;
+  --gold:    #f59e0b;
+  --green:   #22c55e;
+  --orange:  #f97316;
+  --red:     #ef4444;
+  --text:    #e2e8f0;
+  --muted:   #64748b;
+  --muted2:  #94a3b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 13px 24px; display: flex; align-items: center; gap: 16px; }
+.logo { font-size: 15px; font-weight: 700; color: var(--accent2); text-decoration: none; }
+.logo em { color: var(--gold); font-style: normal; }
+.hd { width: 1px; height: 18px; background: var(--border); }
+.ht { font-size: 14px; font-weight: 600; color: var(--text); }
+.hp { background: rgba(245,158,11,.15); color: var(--gold); border: 1px solid rgba(245,158,11,.3); font-size: 10px; font-weight: 600; letter-spacing: .5px; padding: 2px 8px; border-radius: 20px; }
+
+/* TABS */
+.tabs { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; }
+.tab { font-size: 13px; font-weight: 500; color: var(--muted2); padding: 11px 16px; cursor: pointer; border: none; background: transparent; border-bottom: 2px solid transparent; transition: color .15s, border-color .15s; white-space: nowrap; }
+.tab:hover { color: var(--text); }
+.tab.active { color: #fff; border-bottom-color: var(--accent); font-weight: 600; }
+
+/* MAIN */
+.main { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* HERO STATS */
+.hero { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.hstat { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; min-width: 130px; }
+.hstat .hv { font-size: 21px; font-weight: 700; color: var(--accent2); line-height: 1; }
+.hstat .hl { font-size: 11px; color: var(--muted2); margin-top: 3px; }
+
+/* FILTER BAR */
+.fbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 12px; }
+.fg { display: flex; flex-direction: column; gap: 3px; }
+.fg label { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .4px; text-transform: uppercase; }
+.fg select, .fg input { background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0 10px; font-family: 'Inter', sans-serif; font-size: 13px; outline: none; height: 32px; transition: border-color .15s; }
+.fg input { min-width: 160px; }
+.fg select:focus, .fg input:focus { border-color: var(--accent); }
+.btn-r { background: transparent; border: 1px solid var(--border); color: var(--muted2); border-radius: 6px; padding: 0 14px; height: 32px; font-size: 12px; font-weight: 500; cursor: pointer; align-self: flex-end; transition: border-color .15s, color .15s; }
+.btn-r:hover { border-color: var(--accent); color: var(--accent2); }
+
+/* TABLE */
+.tw { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+tbody tr:nth-child(even) { background: rgba(255,255,255,.018); }
+.ts { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--bg3); }
+th {
+  font-size: 11px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+  color: #fff; padding: 10px 14px; white-space: nowrap;
+  cursor: pointer; user-select: none; border-bottom: 1px solid rgba(255,255,255,.06);
+  transition: color .15s;
+}
+th:hover { color: var(--accent2); }
+th.srt { color: var(--accent2); }
+.sa { font-size: 9px; margin-left: 3px; }
+tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .1s; cursor: pointer; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(59,130,246,.07); }
+td { padding: 9px 14px; white-space: nowrap; font-size: 13px; color: #fff; font-weight: 600; }
+td.tp { font-weight: 700; color: #fff; }
+td.tn { font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+td.tm { color: #fff; font-weight: 600; }
+.tf { padding: 8px 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+/* POSITION BADGES — plain, no color */
+.pos { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,.08); color: #fff; }
+
+/* LOADING */
+.ld { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px; color: var(--muted2); font-size: 13px; }
+.sp { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.nd { display: flex; justify-content: center; padding: 48px; color: var(--muted); font-size: 13px; }
+
+/* MODAL */
+.ov { position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(3px); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; }
+.ov.open { display: flex; }
+.mo { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.mo-hd { background: var(--bg3); padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; border-radius: 12px 12px 0 0; }
+.mo-nm { font-size: 20px; font-weight: 700; color: #fff; }
+.mo-sb { font-size: 12px; color: var(--muted2); margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mo-x  { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; }
+.mo-x:hover { color: #fff; }
+.mo-bd { padding: 16px 20px; }
+.ms-title { font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.mm-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(105px,1fr)); gap: 8px; margin-bottom: 18px; }
+.mm { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; text-align: center; }
+.mm .mv { font-size: 20px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.mm .ml { font-size: 10px; font-weight: 600; color: var(--muted2); margin-top: 3px; }
+.mm .mp { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.pb-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.pb-row  { display: flex; align-items: center; gap: 10px; }
+.pb-lbl  { font-size: 12px; color: var(--muted2); width: 80px; flex-shrink: 0; }
+.pb-val  { font-size: 12px; font-weight: 600; width: 38px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.pb-bg   { flex: 1; background: var(--bg3); border-radius: 3px; height: 7px; overflow: hidden; }
+.pb-fill { height: 100%; border-radius: 3px; }
+.cl { display: flex; flex-direction: column; gap: 5px; }
+.ci { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; cursor: pointer; transition: border-color .15s; }
+.ci:hover { border-color: var(--accent); }
+.ci .cn { font-weight: 600; color: var(--text); font-size: 13px; }
+.ci .cm { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.ci .cd { font-size: 11px; color: var(--muted2); }
+.ci .cs { font-size: 15px; font-weight: 700; color: var(--gold); }
+
+/* COMPARE */
+.cmp-wrap { display: grid; grid-template-columns: 1fr 44px 1fr; gap: 12px; margin-bottom: 14px; align-items: start; }
+.cmp-vs { font-size: 16px; font-weight: 700; color: var(--muted); text-align: center; padding-top: 32px; }
+.cp { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+.cp h4 { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 8px; }
+.cp select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0 10px; font-family: 'Inter',sans-serif; font-size: 13px; outline: none; margin-bottom: 6px; height: 32px; }
+.cp select:focus { border-color: var(--accent); }
+.cmp-btn { text-align: center; margin-bottom: 14px; }
+.btn-cmp { background: var(--accent); color: #fff; border: none; border-radius: 7px; padding: 8px 32px; font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-cmp:hover { background: #2563eb; }
+.cr-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cr-hd { display: grid; grid-template-columns: 1fr 72px 1fr; background: var(--bg3); padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: center; }
+.cr-hd .n { font-size: 15px; font-weight: 700; color: #fff; }
+.cr-hd .m { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+.cr-hd .v { font-size: 12px; font-weight: 700; color: var(--muted); align-self: center; }
+.cr-row { display: grid; grid-template-columns: 1fr 72px 1fr; padding: 8px 14px; border-bottom: 1px solid rgba(30,45,80,.5); font-size: 13px; align-items: center; }
+.cr-row:last-child { border-bottom: none; }
+.cr-row .l { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .4px; text-transform: uppercase; text-align: center; }
+.cr-row .a { text-align: right; font-weight: 500; color: var(--muted2); font-variant-numeric: tabular-nums; }
+.cr-row .b { text-align: left;  font-weight: 500; color: var(--muted2); font-variant-numeric: tabular-nums; }
+.win { color: var(--green) !important; font-weight: 600 !important; }
+.lose { color: var(--muted) !important; }
+
+.yp { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; }
+.yp-26 { background: rgba(245,158,11,.2); color: var(--gold); }
+.yp-hi { background: rgba(59,130,246,.12); color: var(--muted2); }
+
+@media (max-width: 768px) {
+  .cmp-wrap { grid-template-columns: 1fr; }
+  .cmp-vs { padding-top: 0; }
+  .main { padding: 12px; }
+  .header { padding: 10px 14px; gap: 10px; }
+  .ht { font-size: 13px; }
+  .tabs { padding: 0 10px; overflow-x: auto; }
+  .tab { padding: 10px 12px; font-size: 12px; }
+  .fbar { gap: 6px; }
+  .fg input { min-width: 130px; }
+  .hero { gap: 8px; }
+  .hstat { min-width: 100px; padding: 10px 12px; }
+  .hstat .hv { font-size: 18px; }
+  .hstat .hl { font-size: 10px; }
+  th { font-size: 10px; padding: 8px 10px; }
+  td { padding: 8px 10px; font-size: 12px; }
+  .tf { flex-direction: column; gap: 3px; }
+  .tf span:last-child { display: none; }
+  .mo { border-radius: 10px; }
+  .mo-nm { font-size: 17px; }
+  .mm-grid { grid-template-columns: repeat(3,1fr); }
+  .cr-hd { grid-template-columns: 1fr 36px 1fr; padding: 10px 10px; }
+  .cr-hd .n { font-size: 13px; }
+  .cr-row { grid-template-columns: 1fr 60px 1fr; padding: 7px 10px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a class="logo" href="#">xep<em>.</em>ai</a>
+  <div class="hd"></div>
+  <span class="ht">NFL Draft Combine Explorer</span>
+  <span class="hp">2026 LIVE</span>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" onclick="switchTab('t26',0)">2026 Class</button>
+  <button class="tab"        onclick="switchTab('tH',1)">Historical (2015–2025)</button>
+  <button class="tab"        onclick="switchTab('tC',2)">Compare Players</button>
+</nav>
+
+<div class="main">
+
+  <!-- 2026 -->
+  <div id="t26" class="panel active">
+    <div id="hero" class="hero"></div>
+    <div class="fbar">
+      <div class="fg"><label>Search</label><input id="s26" type="text" placeholder="Player name…" oninput="r26()"></div>
+      <div class="fg"><label>Position</label><select id="p26" onchange="r26()"><option value="">All Positions</option></select></div>
+      <button class="btn-r" onclick="reset26()">Reset</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 14px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:12px;color:var(--accent2);font-weight:500;">
+      <span>👆</span><span>Click any player row to view their full combine profile, percentile rankings, and similar historical prospects</span>
+    </div>    <div id="tbl26" class="tw"><div class="ld"><div class="sp"></div>Loading 2026 data…</div></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="tH" class="panel">
+    <div class="fbar">
+      <div class="fg"><label>Search</label><input id="sH" type="text" placeholder="Player name…" oninput="rH()"></div>
+      <div class="fg"><label>Position</label><select id="pH" onchange="rH()"><option value="">All Positions</option></select></div>
+      <div class="fg"><label>Year</label><select id="yH" onchange="rH()"><option value="">All Years</option></select></div>
+      <div class="fg"><label>Draft</label>
+        <select id="dH" onchange="rH()">
+          <option value="">All</option>
+          <option value="drafted">Drafted</option>
+          <option value="udfa">UDFA</option>
+        </select>
+      </div>
+      <button class="btn-r" onclick="resetH()">Reset</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 14px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:12px;color:var(--accent2);font-weight:500;">
+      <span>👆</span><span>Click any player row to view their full combine profile, percentile rankings, and similar historical prospects</span>
+    </div>    <div id="tblH" class="tw"><div class="ld"><div class="sp"></div>Loading historical data…</div></div>
+  </div>
+
+  <!-- COMPARE -->
+  <div id="tC" class="panel">
+    <div class="cmp-wrap">
+      <div class="cp">
+        <h4>Player A</h4>
+        <select id="cAy" onchange="fillCmp('A')"><option value="2026">2026 Class</option><option value="hist">2015–2025</option></select>
+        <select id="cAp" onchange="fillCmp('A')"><option value="">All Positions</option></select>
+        <select id="cAn"><option value="">— Select Player —</option></select>
+      </div>
+      <div class="cmp-vs">VS</div>
+      <div class="cp">
+        <h4>Player B</h4>
+        <select id="cBy" onchange="fillCmp('B')"><option value="2026">2026 Class</option><option value="hist">2015–2025</option></select>
+        <select id="cBp" onchange="fillCmp('B')"><option value="">All Positions</option></select>
+        <select id="cBn"><option value="">— Select Player —</option></select>
+      </div>
+    </div>
+    <div class="cmp-btn"><button class="btn-cmp" onclick="runCmp()">Compare Players</button></div>
+    <div id="cOut"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="ovClick(event)">
+  <div class="mo">
+    <div class="mo-hd">
+      <div><div class="mo-nm" id="mN"></div><div class="mo-sb" id="mS"></div></div>
+      <button class="mo-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mo-bd" id="mB"></div>
+  </div>
+</div>
+
+<script>
+const URL26 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=561756083&single=true&output=csv';
+const URLH  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1218024369&single=true&output=csv';
+
+let d26=[], dH=[];
+const srt = { t26:{k:'Player',d:1}, tH:{k:'entry_year',d:-1} };
+
+// ── CSV ──────────────────────────────────────────────────
+function parseCSV(txt){
+  const lines=txt.trim().split('\n');
+  const hs=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line=>{
+    const vals=[];let cur='',q=false;
+    for(const c of line){
+      if(c==='"')q=!q;
+      else if(c===','&&!q){vals.push(cur.trim());cur='';}
+      else cur+=c;
+    }
+    vals.push(cur.trim());
+    const o={};hs.forEach((h,i)=>{o[h]=vals[i]??'';});return o;
+  });
+}
+const N=v=>{const x=parseFloat(v);return isNaN(x)?null:x;};
+const F=(v,d=2)=>v==null?'—':v.toFixed(d);
+const FI=v=>v==null?'—':Math.round(v).toString();
+
+function n26(r){return{_s:'26',Player:r.player||r.Player||'',position:(r.position||'').trim().replace(/^SAF$/i,'S'),entry_year:'2026',college:r.college||'',ht:r.ht?String(Math.round(parseFloat(r.ht))):'',wt:N(r.wt),forty:N(r.forty),bench:N(r.bench),vertical:N(r.vertical),broad_jump:N(r.broad_jump),cone:N(r.cone),shuttle:N(r.shuttle),arm_length:N(r.arm_length),hand_size:N(r.hand_size),draft_ovr:null,draft_round:null,draft_team:null};}
+function nH(r){return{_s:'H',Player:r.Player||'',position:(r.position||'').trim().replace(/^SAF$/i,'S'),entry_year:r.entry_year||'',college:'',ht:r.ht?String(Math.round(parseFloat(r.ht))):'',wt:N(r.wt),forty:N(r.forty),bench:N(r.bench),vertical:N(r.vertical),broad_jump:N(r.broad_jump),cone:N(r.cone),shuttle:N(r.shuttle),arm_length:null,hand_size:null,draft_ovr:N(r.draft_ovr),draft_round:N(r.draft_round),draft_team:r.draft_team||null};}
+
+async function loadAll(){
+  try{
+    const[r1,r2]=await Promise.all([fetch(URL26),fetch(URLH)]);
+    const[t1,t2]=await Promise.all([r1.text(),r2.text()]);
+    d26=parseCSV(t1).map(n26).filter(r=>r.Player);
+    dH=parseCSV(t2).map(nH).filter(r=>r.Player);
+    initFilters();buildHero();r26();rH();initCmp();
+  }catch(e){
+    ['tbl26','tblH'].forEach(id=>document.getElementById(id).innerHTML='<div class="nd">Failed to load — please refresh.</div>');
+  }
+}
+
+function initFilters(){
+  pop('p26',[...new Set(d26.map(r=>r.position).filter(Boolean))].sort());
+  pop('pH', [...new Set(dH.map(r=>r.position).filter(Boolean))].sort());
+  pop('yH', [...new Set(dH.map(r=>r.entry_year).filter(Boolean))].sort((a,b)=>b-a));
+}
+function pop(id,vs){const el=document.getElementById(id);vs.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});}
+
+// ── HERO ─────────────────────────────────────────────────
+function buildHero(){
+  const b40=d26.filter(r=>r.forty!==null).reduce((b,r)=>r.forty<(b?.forty??99)?r:b,null);
+  const bV= d26.filter(r=>r.vertical!==null).reduce((b,r)=>r.vertical>(b?.vertical??0)?r:b,null);
+  const pos=[...new Set(d26.map(r=>r.position).filter(Boolean))];
+  const aw=d26.filter(r=>r.wt).reduce((s,r)=>s+r.wt,0)/(d26.filter(r=>r.wt).length||1);
+  document.getElementById('hero').innerHTML=[
+    [d26.length,'Prospects'],
+    [pos.length,'Positions'],
+    [b40?b40.forty.toFixed(2)+'s':'—','Fastest 40'+(b40?' ('+b40.Player.split(' ').pop()+')':'')],
+    [bV?bV.vertical.toFixed(1)+'"':'—','Best Vertical'+(bV?' ('+bV.Player.split(' ').pop()+')':'')],
+    [d26.filter(r=>r.forty!==null).length,'40 Times Logged'],
+    [Math.round(aw)||'—','Avg Weight (lb)'],
+  ].map(([v,l])=>`<div class="hstat"><div class="hv">${v}</div><div class="hl">${l}</div></div>`).join('');
+}
+
+// ── PERCENTILE ────────────────────────────────────────────
+const LB=['forty','cone','shuttle'];
+function pct(m,val,pos){
+  let pool=dH.filter(r=>r.position===pos&&r[m]!==null).concat(d26.filter(r=>r.position===pos&&r[m]!==null));
+  if(pool.length<6) pool=dH.filter(r=>r[m]!==null).concat(d26.filter(r=>r[m]!==null));
+  if(!pool.length)return null;
+  const vs=pool.map(r=>r[m]).sort((a,b)=>a-b);
+  const p=LB.includes(m)?Math.round((1-vs.filter(v=>v<=val).length/vs.length)*100):Math.round(vs.filter(v=>v<=val).length/vs.length*100);
+  return Math.max(1,Math.min(99,p));
+}
+function pc(p){if(p==null)return'var(--muted2)';if(p>=80)return'var(--green)';if(p>=60)return'var(--accent2)';if(p>=40)return'var(--text)';if(p>=20)return'var(--orange)';return'var(--red)';}
+
+// ── SORT ─────────────────────────────────────────────────
+const NKS=['wt','forty','bench','vertical','broad_jump','cone','shuttle','entry_year','draft_ovr','draft_round'];
+function sortR(rows,k,d){
+  return[...rows].sort((a,b)=>{
+    let av=a[k],bv=b[k];
+    if(NKS.includes(k)){av=av==null?Infinity:+av;bv=bv==null?Infinity:+bv;}
+    else{av=(av||'').toString().toLowerCase();bv=(bv||'').toString().toLowerCase();}
+    if(av===bv)return 0;
+    if(av===Infinity)return 1;if(bv===Infinity)return-1;
+    return av<bv?-d:d;
+  });
+}
+function ar(k,sk,sd){if(k!==sk)return'';return`<span class="sa">${sd===1?'▲':'▼'}</span>`;}
+function thClick(tid,k){const s=srt[tid];if(s.k===k)s.d*=-1;else{s.k=k;s.d=1;}tid==='t26'?r26():rH();}
+
+// ── METRIC DEFS ───────────────────────────────────────────
+const MET=[
+  {k:'forty',    lb:'40 Dash',    f:v=>F(v)},
+  {k:'bench',    lb:'Bench',      f:v=>FI(v)},
+  {k:'vertical', lb:'Vertical',   f:v=>F(v,1)},
+  {k:'broad_jump',lb:'Broad Jump',f:v=>FI(v)},
+  {k:'cone',     lb:'3-Cone',     f:v=>F(v)},
+  {k:'shuttle',  lb:'Shuttle',    f:v=>F(v)},
+];
+
+// ── RENDER 2026 ───────────────────────────────────────────
+function r26(){
+  const srch=document.getElementById('s26').value.toLowerCase();
+  const pos=document.getElementById('p26').value;
+  const{k,d}=srt.t26;
+  let rows=d26.filter(r=>(!srch||r.Player.toLowerCase().includes(srch))&&(!pos||r.position===pos));
+  rows=sortR(rows,k,d);
+
+  const TH=(key,lbl,ra=false)=>`<th onclick="thClick('t26','${key}')" class="${k===key?'srt':''}"${ra?' style="text-align:center"':''}>${lbl}${ar(key,k,d)}</th>`;
+  let h=`<div class="ts"><table><thead><tr>
+    ${TH('Player','Player ↗',false,true)}${TH('position','Pos')}${TH('college','College')}${TH('ht','Ht')}${TH('wt','Wt',true)}
+    ${MET.map(m=>TH(m.k,m.lb,true)).join('')}
+  </tr></thead><tbody>`;
+
+  rows.forEach(r=>{
+    const i=d26.indexOf(r);
+    h+=`<tr onclick="openM(${i},'26')">`;
+    h+=`<td class="tp">${r.Player}</td>`;
+    h+=`<td><span class="pos pos-${r.position}">${r.position||'—'}</span></td>`;
+    h+=`<td class="tm">${r.college||'—'}</td>`;
+    h+=`<td class="tn tm">${r.ht||'—'}</td>`;
+    h+=`<td class="tn tm">${r.wt||'—'}</td>`;
+    MET.forEach(m=>{
+      const v=r[m.k],p=v!==null?pct(m.k,v,r.position):null;
+      h+=`<td class="tn" style="color:${pc(p)}">${v!==null?m.f(v):'—'}</td>`;
+    });
+    h+=`</tr>`;
+  });
+
+  h+=`</tbody></table></div><div class="tf"><span>${rows.length} prospect${rows.length!==1?'s':''}</span><span style="color:var(--accent2);font-weight:600">👆 Click any player for full profile + historical comps</span></div>`;
+  document.getElementById('tbl26').innerHTML=h;
+}
+function reset26(){document.getElementById('s26').value='';document.getElementById('p26').value='';srt.t26={k:'Player',d:1};r26();}
+
+// ── RENDER HISTORY ────────────────────────────────────────
+function rH(){
+  const srch=document.getElementById('sH').value.toLowerCase();
+  const pos=document.getElementById('pH').value;
+  const yr=document.getElementById('yH').value;
+  const dr=document.getElementById('dH').value;
+  const{k,d}=srt.tH;
+  let rows=dH.filter(r=>{
+    if(srch&&!r.Player.toLowerCase().includes(srch))return false;
+    if(pos&&r.position!==pos)return false;
+    if(yr&&r.entry_year!=yr)return false;
+    if(dr==='drafted'&&!r.draft_round)return false;
+    if(dr==='udfa'&&r.draft_round)return false;
+    return true;
+  });
+  rows=sortR(rows,k,d).slice(0,500);
+
+  const TH=(key,lbl,ra=false)=>`<th onclick="thClick('tH','${key}')" class="${k===key?'srt':''}"${ra?' style="text-align:center"':''}>${lbl}${ar(key,k,d)}</th>`;
+  let h=`<div class="ts"><table><thead><tr>
+    ${TH('Player','Player')}${TH('position','Pos')}${TH('entry_year','Year')}${TH('ht','Ht')}${TH('wt','Wt',true)}
+    ${MET.map(m=>TH(m.k,m.lb,true)).join('')}
+    ${TH('draft_ovr','Draft',true)}
+  </tr></thead><tbody>`;
+
+  rows.forEach(r=>{
+    const i=dH.indexOf(r);
+    const ds=r.draft_round?`Rd ${r.draft_round}${r.draft_ovr?' #'+r.draft_ovr:''}${r.draft_team?' · '+r.draft_team:''}`:'UDFA';
+    const dc=r.draft_round?'var(--green)':'var(--muted)';
+    h+=`<tr onclick="openM(${i},'H')">`;
+    h+=`<td class="tp">${r.Player}</td>`;
+    h+=`<td><span class="pos pos-${r.position}">${r.position||'—'}</span></td>`;
+    h+=`<td class="tm">${r.entry_year}</td>`;
+    h+=`<td class="tn tm">${r.ht||'—'}</td>`;
+    h+=`<td class="tn tm">${r.wt||'—'}</td>`;
+    MET.forEach(m=>{
+      const v=r[m.k],p=v!==null?pct(m.k,v,r.position):null;
+      h+=`<td class="tn" style="color:${pc(p)}">${v!==null?m.f(v):'—'}</td>`;
+    });
+    h+=`<td style="color:${dc};font-size:14px;font-weight:700;text-align:center">${ds}</td>`;
+    h+=`</tr>`;
+  });
+
+  h+=`</tbody></table></div><div class="tf"><span>${rows.length} player${rows.length!==1?'s':''}${rows.length===500?' (max 500 shown)':''}</span><span style="color:var(--accent2);font-weight:600">👆 Click any player for full profile + historical comps</span></div>`;
+  document.getElementById('tblH').innerHTML=h;
+}
+function resetH(){document.getElementById('sH').value='';document.getElementById('pH').value='';document.getElementById('yH').value='';document.getElementById('dH').value='';srt.tH={k:'entry_year',d:-1};rH();}
+
+// ── MODAL ─────────────────────────────────────────────────
+function openM(idx,src){
+  const r=src==='26'?d26[idx]:dH[idx];if(!r)return;
+  document.getElementById('mN').textContent=r.Player;
+
+  const pill=r._s==='26'?'<span class="yp yp-26">2026 CLASS</span>':`<span class="yp yp-hi">${r.entry_year}</span>`;
+  const ds=r.draft_round?`Rd ${r.draft_round} #${r.draft_ovr||'?'}${r.draft_team?' · '+r.draft_team:''}`:'';
+  document.getElementById('mS').innerHTML=
+    `<span class="pos pos-${r.position}">${r.position||'?'}</span>${pill}`+
+    (r.college?`<span>${r.college}</span>`:'')+
+    (ds?`<span style="color:var(--green)">${ds}</span>`:'');
+
+  const allM=[
+    {k:'wt',lb:'Weight',f:v=>FI(v),u:'lb'},
+    ...MET.map(m=>({k:m.k,lb:m.lb,f:m.f,u:m.k==='forty'||m.k==='cone'||m.k==='shuttle'?'s':m.k==='bench'?'reps':'"'})),
+    {k:'arm_length',lb:'Arm Length',f:v=>F(v,1),u:'"'},
+    {k:'hand_size',lb:'Hand Size',f:v=>F(v,1),u:'"'},
+  ].filter(m=>r[m.k]!==null);
+
+  let b='<div class="ms-title">Combine Measurements</div><div class="mm-grid">';
+  allM.forEach(m=>{
+    const v=r[m.k];
+    const p=['forty','bench','vertical','broad_jump','cone','shuttle'].includes(m.k)?pct(m.k,v,r.position):null;
+    const c=pc(p);
+    b+=`<div class="mm"><div class="mv" style="color:${c}">${m.f(v)}<span style="font-size:11px;font-weight:400;color:var(--muted2)"> ${m.u}</span></div><div class="ml">${m.lb}</div>${p!==null?`<div class="mp" style="color:${c}">${p}th pct</div>`:''}</div>`;
+  });
+  b+='</div>';
+
+  const barMs=MET.filter(m=>r[m.k]!==null);
+  if(barMs.length){
+    b+='<div class="ms-title" style="margin-top:16px">Percentile vs Same Position (2015–2026)</div><div class="pb-rows">';
+    barMs.forEach(m=>{
+      const v=r[m.k],p=pct(m.k,v,r.position);const c=pc(p);
+      b+=`<div class="pb-row"><span class="pb-lbl">${m.lb}</span><span class="pb-val" style="color:${c}">${p!==null?p+'th':'—'}</span><div class="pb-bg"><div class="pb-fill" style="width:${p||0}%;background:${c}"></div></div></div>`;
+    });
+    b+='</div>';
+  }
+
+  const comps=findComps(r);
+  if(comps.length){
+    b+='<div class="ms-title" style="margin-top:16px">Similar Historical Prospects</div><div class="cl">';
+    comps.forEach(c=>{
+      const i2=dH.indexOf(c);
+      const cd=c.draft_round?`Rd ${c.draft_round} #${c.draft_ovr||'?'}${c.draft_team?' · '+c.draft_team:''}`:'UDFA';
+      b+=`<div class="ci" onclick="openM(${i2},'H')"><div><div class="cn">${c.Player}</div><div class="cm">${c.entry_year} · <span class="pos pos-${c.position}" style="font-size:10px;padding:1px 5px">${c.position}</span></div></div><div class="cd">${cd}</div><div class="cs">${c._sim}%</div></div>`;
+    });
+    b+='</div>';
+  }
+
+  document.getElementById('mB').innerHTML=b;
+  document.getElementById('ov').classList.add('open');
+}
+
+function findComps(r){
+  const ms=MET.filter(m=>r[m.k]!==null);if(ms.length<2)return[];
+  return dH.filter(p=>p.position===r.position&&p!==r)
+    .map(p=>{let tot=0,cnt=0;ms.forEach(m=>{if(p[m.k]==null)return;const rng=LB.includes(m.k)?.25:4;tot+=Math.max(0,100-(Math.abs(r[m.k]-p[m.k])/rng)*15);cnt++;});p._sim=cnt?Math.round(tot/cnt):0;return p;})
+    .filter(p=>p._sim>55).sort((a,b)=>b._sim-a._sim).slice(0,5);
+}
+function ovClick(e){if(e.target===document.getElementById('ov'))closeModal();}
+function closeModal(){document.getElementById('ov').classList.remove('open');}
+
+// ── COMPARE ───────────────────────────────────────────────
+function initCmp(){fillCmp('A');fillCmp('B');}
+function fillCmp(s){
+  const yr=document.getElementById(`c${s}y`).value;
+  const pos=document.getElementById(`c${s}p`).value;
+  const pool=yr==='2026'?d26:dH;
+  const pe=document.getElementById(`c${s}p`);
+  const ap=[...new Set(pool.map(r=>r.position).filter(Boolean))].sort();
+  pe.innerHTML='<option value="">All Positions</option>';
+  ap.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;pe.appendChild(o);});
+  const fil=pos?pool.filter(r=>r.position===pos):pool;
+  const se=document.getElementById(`c${s}n`);
+  se.innerHTML='<option value="">— Select Player —</option>';
+  [...fil].sort((a,b)=>a.Player.localeCompare(b.Player)).forEach(r=>{const i=pool.indexOf(r);const o=document.createElement('option');o.value=`${yr}:${i}`;o.textContent=`${r.Player} (${r.position||'?'} · ${r.entry_year})`;se.appendChild(o);});
+}
+function getCmp(s){const v=document.getElementById(`c${s}n`).value;if(!v)return null;const[src,i]=v.split(':');return src==='2026'?d26[+i]:dH[+i];}
+function runCmp(){
+  const A=getCmp('A'),B=getCmp('B');
+  const el=document.getElementById('cOut');
+  if(!A||!B){el.innerHTML='<div class="nd">Select both players to compare.</div>';return;}
+
+  const allM=[
+    {k:'ht',lb:'Height',str:true},
+    {k:'wt',lb:'Weight',u:'lb',lo:false,f:v=>FI(v)},
+    {k:'forty',lb:'40 Dash',u:'s',lo:true,f:v=>F(v)},
+    {k:'bench',lb:'Bench',u:'reps',lo:false,f:v=>FI(v)},
+    {k:'vertical',lb:'Vertical',u:'"',lo:false,f:v=>F(v,1)},
+    {k:'broad_jump',lb:'Broad Jump',u:'"',lo:false,f:v=>FI(v)},
+    {k:'cone',lb:'3-Cone',u:'s',lo:true,f:v=>F(v)},
+    {k:'shuttle',lb:'Shuttle',u:'s',lo:true,f:v=>F(v)},
+    {k:'arm_length',lb:'Arm Length',u:'"',lo:false,f:v=>F(v,1)},
+    {k:'hand_size',lb:'Hand Size',u:'"',lo:false,f:v=>F(v,1)},
+  ].filter(m=>A[m.k]!==null||B[m.k]!==null);
+
+  let rows='';
+  allM.forEach(m=>{
+    const va=A[m.k],vb=B[m.k];
+    let ca='a',cb='b';
+    if(!m.str&&va!==null&&vb!==null){const aw=m.lo?va<vb:va>vb;if(aw){ca+=' win';cb+=' lose';}else if(va!==vb){ca+=' lose';cb+=' win';}}
+    const da=va==null?'—':(m.str?va:m.f(va)+(m.u?' '+m.u:''));
+    const db=vb==null?'—':(m.str?vb:m.f(vb)+(m.u?' '+m.u:''));
+    rows+=`<div class="cr-row"><span class="${ca}">${da}</span><span class="l">${m.lb}</span><span class="${cb}">${db}</span></div>`;
+  });
+  if(A._s==='H'||B._s==='H'){
+    const da=A._s==='26'?'2026 Prospect':(A.draft_round?`Rd ${A.draft_round} #${A.draft_ovr||'?'}`:'UDFA');
+    const db=B._s==='26'?'2026 Prospect':(B.draft_round?`Rd ${B.draft_round} #${B.draft_ovr||'?'}`:'UDFA');
+    rows+=`<div class="cr-row"><span class="a" style="color:var(--gold)">${da}</span><span class="l">Draft</span><span class="b" style="color:var(--gold)">${db}</span></div>`;
+  }
+
+  el.innerHTML=`<div class="cr-wrap"><div class="cr-hd">
+    <div><div class="n">${A.Player}</div><div class="m"><span class="pos pos-${A.position}">${A.position||'?'}</span> · ${A.entry_year}${A.college?' · '+A.college:''}</div></div>
+    <div class="v">VS</div>
+    <div><div class="n">${B.Player}</div><div class="m"><span class="pos pos-${B.position}">${B.position||'?'}</span> · ${B.entry_year}${B.college?' · '+B.college:''}</div></div>
+  </div>${rows}</div>`;
+}
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(id,i){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab')[i].classList.add('active');
+}
+
+loadAll();
+</script>
+</body>
+</html>
