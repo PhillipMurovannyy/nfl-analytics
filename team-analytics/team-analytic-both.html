@@ -11,31 +11,22 @@
     <img src="https://xep.ai/wp-content/uploads/2024/07/Logo-PNG-2-1.png" alt="xEP" class="ntd-logo" onerror="this.style.display='none'">
   </div>
 
-  <div class="ntd-controls">
-    <div class="ntd-toggle-group">
-      <button class="ntd-toggle active" data-side="OFF">Offense</button>
-      <button class="ntd-toggle" data-side="DEF">Defense</button>
-    </div>
-    <div class="ntd-view-group">
-      <button class="ntd-view active" data-view="Base">Base</button>
-      <button class="ntd-view" data-view="Advanced">Advanced</button>
-      <button class="ntd-view" data-view="Passing">Passing</button>
-      <button class="ntd-view" data-view="Rushing">Rushing</button>
-    </div>
+  <!-- Controls built by JS so inline styles are guaranteed -->
+  <div id="ntdControls"></div>
+
+  <div id="ntdDesc" style="background:#0d1526;border:1px solid #1e3058;border-radius:8px;padding:10px 16px;margin:0 0 14px;font-family:'Roboto Condensed',sans-serif;font-size:13px;color:#64748b;letter-spacing:0.5px;">
+    <strong style="color:#94a3b8;font-weight:700;">Success Rate</strong> = % of plays with positive EPA &nbsp;&nbsp;|&nbsp;&nbsp; Click any column header to sort
   </div>
 
-  <div class="ntd-desc">
-    <strong>Success Rate</strong> = % of plays with positive EPA &nbsp;&nbsp;|&nbsp;&nbsp; Click any column header to sort
-  </div>
-
-  <div id="ntdLoading" style="display:block">
-    <span class="ntd-spinner"></span>
+  <div id="ntdLoading" style="text-align:center;padding:50px 20px;color:#64748b;font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;">
+    <div id="ntdSpinner" style="width:24px;height:24px;border:3px solid #1e3058;border-top-color:#3b82f6;border-radius:50%;animation:ntd-spin 0.8s linear infinite;margin:0 auto 10px;"></div>
     LOADING DATA...
   </div>
 
-  <div class="ntd-table-wrap" style="display:none">
-    <div class="ntd-table-scroll">
-      <table id="ntdTable">
+  <!-- Table container — overflow-x scroll lives here as inline style -->
+  <div id="ntdTableWrap" style="display:none;border:1px solid #1e3058;border-radius:10px;overflow:hidden;">
+    <div id="ntdTableScroll" style="overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;">
+      <table id="ntdTable" style="border-collapse:collapse;text-align:center;font-family:'Roboto Condensed',sans-serif;">
         <thead><tr id="ntdHead"></tr></thead>
         <tbody id="ntdBody"></tbody>
       </table>
@@ -45,14 +36,13 @@
 </div>
 
 <style>
-#nfl-team-dash,
-#nfl-team-dash *,
-#nfl-team-dash *::before,
-#nfl-team-dash *::after {
+@keyframes ntd-spin { to { transform: rotate(360deg); } }
+
+/* Minimal CSS — just scoped resets. All layout done in JS inline styles */
+#nfl-team-dash, #nfl-team-dash *, #nfl-team-dash *::before, #nfl-team-dash *::after {
   box-sizing: border-box !important;
   font-family: 'Roboto Condensed', sans-serif !important;
 }
-
 #nfl-team-dash {
   background: #060a14 !important;
   color: #e2e8f0 !important;
@@ -62,8 +52,6 @@
   margin: auto !important;
   position: relative !important;
 }
-
-/* Header */
 #nfl-team-dash .ntd-header {
   display: flex !important;
   align-items: center !important;
@@ -72,240 +60,30 @@
   padding: 0 0 16px !important;
   border-bottom: 1px solid #1e3058 !important;
 }
-#nfl-team-dash .ntd-header-left {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
-}
+#nfl-team-dash .ntd-header-left { display: flex !important; flex-direction: column !important; gap: 4px !important; }
 #nfl-team-dash .ntd-title {
-  font-weight: 900 !important;
-  font-size: 26px !important;
-  letter-spacing: 3px !important;
-  color: #ffffff !important;
-  text-transform: uppercase !important;
-  line-height: 1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
+  font-weight: 900 !important; font-size: 26px !important; letter-spacing: 3px !important;
+  color: #fff !important; text-transform: uppercase !important; line-height: 1 !important;
+  margin: 0 !important; padding: 0 !important; border: none !important;
 }
 #nfl-team-dash .ntd-season {
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  letter-spacing: 1.5px !important;
-  text-transform: uppercase !important;
-  color: #3b82f6 !important;
+  font-size: 12px !important; font-weight: 600 !important; letter-spacing: 1.5px !important;
+  text-transform: uppercase !important; color: #3b82f6 !important;
 }
-/* Desktop logo */
 #nfl-team-dash .ntd-logo {
-  height: 82px !important;
-  width: auto !important;
-  max-width: 110px !important;
-  object-fit: contain !important;
-  opacity: 0.9 !important;
-  filter: none !important;
-  display: block !important;
+  height: 40px !important; width: auto !important; max-width: 130px !important;
+  object-fit: contain !important; opacity: 0.9 !important;
 }
-
-/* Controls */
-#nfl-team-dash .ntd-controls {
-  display: flex !important;
-  align-items: center !important;
-  gap: 16px !important;
-  margin: 0 0 14px !important;
-  padding: 0 !important;
-  flex-wrap: wrap !important;
-}
-#nfl-team-dash .ntd-toggle-group,
-#nfl-team-dash .ntd-view-group {
-  display: flex !important;
-  background: #0d1526 !important;
-  border: 1.5px solid #1e3058 !important;
-  border-radius: 8px !important;
-  padding: 4px !important;
-  gap: 4px !important;
-  margin: 0 !important;
-}
-#nfl-team-dash .ntd-toggle,
-#nfl-team-dash .ntd-view {
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.5px !important;
-  text-transform: uppercase !important;
-  border: none !important;
-  border-radius: 6px !important;
-  cursor: pointer !important;
-  color: #64748b !important;
-  background: transparent !important;
-  transition: background 0.2s, color 0.2s !important;
-  white-space: nowrap !important;
-  line-height: 1 !important;
-  margin: 0 !important;
-}
-#nfl-team-dash .ntd-toggle { padding: 9px 28px !important; }
-#nfl-team-dash .ntd-view   { padding: 9px 22px !important; }
-
-#nfl-team-dash .ntd-toggle:hover:not(.active),
-#nfl-team-dash .ntd-view:hover:not(.active) {
-  background: rgba(59,130,246,0.15) !important;
-  color: #e2e8f0 !important;
-}
-#nfl-team-dash .ntd-toggle.active[data-side="OFF"] { background: #14532d !important; color: #4ade80 !important; }
-#nfl-team-dash .ntd-toggle.active[data-side="DEF"] { background: #7f1d1d !important; color: #fca5a5 !important; }
-#nfl-team-dash .ntd-view.active { background: #3b82f6 !important; color: #ffffff !important; }
-
-/* Description */
-#nfl-team-dash .ntd-desc {
-  background: #0d1526 !important;
-  border: 1px solid #1e3058 !important;
-  border-radius: 8px !important;
-  padding: 10px 16px !important;
-  margin: 0 0 14px !important;
-  font-size: 13px !important;
-  color: #64748b !important;
-  letter-spacing: 0.5px !important;
-}
-#nfl-team-dash .ntd-desc strong { color: #94a3b8 !important; font-weight: 700 !important; }
-
-/* Table wrapper */
-#nfl-team-dash .ntd-table-wrap {
-  border: 1px solid #1e3058 !important;
-  border-radius: 10px !important;
-  overflow: hidden !important;
-  margin: 0 !important;
-}
-#nfl-team-dash .ntd-table-scroll {
-  overflow-x: auto !important;
-  overflow-y: visible !important;
-}
-#nfl-team-dash #ntdTable {
-  width: 100% !important;
-  border-collapse: collapse !important;
-  text-align: center !important;
-}
-
-/* thead */
-#nfl-team-dash #ntdTable thead { position: sticky !important; top: 0 !important; z-index: 10 !important; }
-#nfl-team-dash #ntdTable th {
-  padding: 10px 12px !important;
-  font-size: 11px !important;
-  font-weight: 800 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1.5px !important;
-  color: #ffffff !important;
-  background: #111d35 !important;
-  border-bottom: 2px solid #1e3058 !important;
-  border-top: none !important;
-  border-left: none !important;
-  border-right: none !important;
-  cursor: pointer !important;
-  white-space: nowrap !important;
-  user-select: none !important;
-}
-#nfl-team-dash #ntdTable th:hover { background: rgba(59,130,246,0.2) !important; color: #ffffff !important; }
-#nfl-team-dash #ntdTable th.sort-asc::after  { content: ' ▲'; font-size: 9px !important; color: #3b82f6 !important; }
-#nfl-team-dash #ntdTable th.sort-desc::after { content: ' ▼'; font-size: 9px !important; color: #3b82f6 !important; }
-
-/* tbody */
-#nfl-team-dash #ntdTable td {
-  padding: 7px 12px !important;
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid rgba(30,48,88,0.4) !important;
-  border-top: none !important;
-  border-left: none !important;
-  border-right: none !important;
-  white-space: nowrap !important;
-}
-#nfl-team-dash #ntdTable tbody tr { background: #0d1526 !important; transition: background 0.15s !important; }
-#nfl-team-dash #ntdTable tbody tr:nth-child(even) { background: #060a14 !important; }
-#nfl-team-dash #ntdTable tbody tr:hover { background: rgba(59,130,246,0.12) !important; }
-#nfl-team-dash #ntdTable tbody tr:last-child td { border-bottom: none !important; }
-
-/* Rank */
-#nfl-team-dash .ntd-rank {
-  font-size: 11px !important;
-  color: #64748b !important;
-  font-weight: 700 !important;
-  width: 32px !important;
-  min-width: 32px !important;
-  text-align: center !important;
-}
-
-/* Team cell */
-#nfl-team-dash .ntd-team {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  padding: 0 0 0 8px !important;
-  text-align: left !important;
-  min-width: 80px !important;
-  max-width: 110px !important;
-}
-#nfl-team-dash .ntd-team img {
-  width: 22px !important;
-  height: 22px !important;
-  object-fit: contain !important;
-  flex-shrink: 0 !important;
-  display: block !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-#nfl-team-dash .ntd-team span {
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  color: #ffffff !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-  white-space: nowrap !important;
-}
-
-/* Loading */
-#nfl-team-dash #ntdLoading {
-  text-align: center !important;
-  padding: 50px 20px !important;
-  color: #64748b !important;
-  font-weight: 700 !important;
-  font-size: 13px !important;
-  letter-spacing: 2px !important;
-  text-transform: uppercase !important;
-}
-#nfl-team-dash .ntd-spinner {
-  display: block !important;
-  width: 24px !important;
-  height: 24px !important;
-  border: 3px solid #1e3058 !important;
-  border-top-color: #3b82f6 !important;
-  border-radius: 50% !important;
-  animation: ntd-spin 0.8s linear infinite !important;
-  margin: 0 auto 10px !important;
-}
-@keyframes ntd-spin { to { transform: rotate(360deg); } }
-
-/* Mobile */
 @media (max-width: 700px) {
   #nfl-team-dash { padding: 14px 10px 30px !important; }
   #nfl-team-dash .ntd-title { font-size: 18px !important; letter-spacing: 2px !important; }
-  /* Hide logo on mobile */
   #nfl-team-dash .ntd-logo { display: none !important; }
-  #nfl-team-dash .ntd-controls { gap: 8px !important; }
-  #nfl-team-dash .ntd-toggle-group,
-  #nfl-team-dash .ntd-view-group { flex-wrap: wrap !important; }
-  #nfl-team-dash .ntd-toggle { font-size: 11px !important; padding: 7px 16px !important; }
-  #nfl-team-dash .ntd-view   { font-size: 11px !important; padding: 7px 10px !important; }
-  #nfl-team-dash #ntdTable th { font-size: 10px !important; padding: 8px 6px !important; }
-  #nfl-team-dash #ntdTable td { font-size: 12px !important; padding: 6px 5px !important; }
-  #nfl-team-dash .ntd-team { min-width: 70px !important; gap: 5px !important; }
-  #nfl-team-dash .ntd-team img { width: 18px !important; height: 18px !important; }
-  #nfl-team-dash .ntd-team span { font-size: 11px !important; }
-  #nfl-team-dash .ntd-rank { width: 24px !important; min-width: 24px !important; }
 }
 </style>
 
 <script>
 (function(){
 
-// Same multi-proxy approach as player tool — works on mobile
 const PROXIES = [
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
@@ -327,14 +105,14 @@ const views = {
 const displayNames = {
   Team:"Team", plays:"Plays", total_yards:"Total Yds", yards_per_play:"Yds/Play",
   epa_per_play:"EPA/Play", success_rate:"Success%", third_down_conversion_rate:"3rd Dn%",
-  explosive_play_rate:"Explosive%", early_down_success_rate:"Early Dn Succ%",
-  score_play_rate:"Score Play%", negative_play_rate:"Neg Play%",
+  explosive_play_rate:"Explosive%", early_down_success_rate:"Early Dn%",
+  score_play_rate:"Score%", negative_play_rate:"Neg%",
   red_zone_play_rate:"RZ Play%", red_zone_success_rate:"RZ Succ%",
   pass_rate:"Pass%", pass_success:"Pass Succ%", pass_epa:"Pass EPA",
-  air_yards_per_attempt:"ADOT", sack_rate:"Sack%", yac_per_completion:"YAC/Comp",
-  explosive_pass_rate:"Explosive Pass%", interception_rate:"INT%",
+  air_yards_per_attempt:"ADOT", sack_rate:"Sack%", yac_per_completion:"YAC",
+  explosive_pass_rate:"Exp Pass%", interception_rate:"INT%",
   rush_play_pct:"Rush%", rush_epa:"Rush EPA", rush_success:"Rush Succ%",
-  explosive_rush_rate:"Explosive Rush%"
+  explosive_rush_rate:"Exp Rush%"
 };
 
 const teamLogos = {
@@ -366,12 +144,73 @@ let currentView = "Base";
 let dataStore   = { OFF:[], DEF:[] };
 let sortState   = { col:null, asc:false };
 
-const thead   = document.getElementById("ntdHead");
-const tbody   = document.getElementById("ntdBody");
-const loading = document.getElementById("ntdLoading");
-const tableWrap = document.querySelector("#nfl-team-dash .ntd-table-wrap");
+// ── Build controls entirely in JS with inline styles ──
+function buildControls() {
+  const wrap = document.getElementById('ntdControls');
+  wrap.style.cssText = 'display:flex;align-items:center;gap:16px;margin:0 0 14px;flex-wrap:wrap;';
 
-// ── Fetch with proxy fallback (no PapaParse download mode — fixes mobile CORS) ──
+  const grpStyle = 'display:flex;background:#0d1526;border:1.5px solid #1e3058;border-radius:8px;padding:4px;gap:4px;';
+  const btnBase  = 'font-family:\'Roboto Condensed\',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:6px;cursor:pointer;color:#64748b;background:transparent;line-height:1;white-space:nowrap;transition:background 0.2s,color 0.2s;';
+
+  // Offense / Defense
+  const tg = document.createElement('div');
+  tg.style.cssText = grpStyle;
+  [['OFF','Offense','9px 28px'],['DEF','Defense','9px 28px']].forEach(([side,label,pad]) => {
+    const b = document.createElement('button');
+    b.style.cssText = btnBase + 'padding:' + pad + ';';
+    b.textContent = label;
+    b.dataset.side = side;
+    if (side === 'OFF') applyToggleActive(b, 'OFF');
+    b.addEventListener('click', () => {
+      tg.querySelectorAll('button').forEach(x => resetToggle(x));
+      applyToggleActive(b, side);
+      currentSide = side;
+      sortState = {col:null,asc:false};
+      renderTable();
+    });
+    tg.appendChild(b);
+  });
+  wrap.appendChild(tg);
+
+  // Base / Advanced / Passing / Rushing
+  const vg = document.createElement('div');
+  vg.style.cssText = grpStyle;
+  [['Base','Base'],['Advanced','Advanced'],['Passing','Passing'],['Rushing','Rushing']].forEach(([view,label]) => {
+    const b = document.createElement('button');
+    b.style.cssText = btnBase + 'padding:9px 22px;';
+    b.textContent = label;
+    b.dataset.view = view;
+    if (view === 'Base') applyViewActive(b);
+    b.addEventListener('click', () => {
+      vg.querySelectorAll('button').forEach(x => resetView(x));
+      applyViewActive(b);
+      currentView = view;
+      sortState = {col:null,asc:false};
+      renderTable();
+    });
+    vg.appendChild(b);
+  });
+  wrap.appendChild(vg);
+}
+
+function applyToggleActive(btn, side) {
+  btn.style.background = side === 'OFF' ? '#14532d' : '#7f1d1d';
+  btn.style.color       = side === 'OFF' ? '#4ade80' : '#fca5a5';
+}
+function resetToggle(btn) {
+  btn.style.background = 'transparent';
+  btn.style.color = '#64748b';
+}
+function applyViewActive(btn) {
+  btn.style.background = '#3b82f6';
+  btn.style.color = '#fff';
+}
+function resetView(btn) {
+  btn.style.background = 'transparent';
+  btn.style.color = '#64748b';
+}
+
+// ── Fetch ──
 async function fetchCSV(url) {
   let lastErr;
   for (const makeProxy of PROXIES) {
@@ -412,30 +251,25 @@ function splitLine(line) {
   return result;
 }
 
-// Load both sheets in parallel
 let loadAttempt = 0;
 async function loadAll() {
   try {
-    const [offData, defData] = await Promise.all([
-      fetchCSV(CSV_URLS.OFF),
-      fetchCSV(CSV_URLS.DEF)
-    ]);
+    const [offData, defData] = await Promise.all([fetchCSV(CSV_URLS.OFF), fetchCSV(CSV_URLS.DEF)]);
     dataStore.OFF = offData;
     dataStore.DEF = defData;
-    loading.style.display = "none";
-    tableWrap.style.display = "block";
+    document.getElementById('ntdLoading').style.display = 'none';
+    document.getElementById('ntdTableWrap').style.display = 'block';
     renderTable();
   } catch(e) {
     loadAttempt++;
     if (loadAttempt < 2) {
-      loading.innerHTML = '<span class="ntd-spinner"></span>RETRYING...';
+      document.getElementById('ntdLoading').innerHTML = '<div style="width:24px;height:24px;border:3px solid #1e3058;border-top-color:#3b82f6;border-radius:50%;animation:ntd-spin 0.8s linear infinite;margin:0 auto 10px;"></div>RETRYING...';
       setTimeout(loadAll, 1500);
     } else {
-      loading.innerHTML = '<p style="color:#ef4444;font-size:14px;letter-spacing:1px">Failed to load. <button onclick="location.reload()" style="background:#3b82f6;border:none;color:#fff;padding:8px 18px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-top:10px;display:block;margin:10px auto 0">Reload</button></p>';
+      document.getElementById('ntdLoading').innerHTML = '<p style="color:#ef4444;font-family:\'Roboto Condensed\',sans-serif;font-size:14px;letter-spacing:1px;margin-bottom:12px;">Failed to load data.</p><button onclick="location.reload()" style="background:#3b82f6;border:none;color:#fff;padding:9px 20px;border-radius:6px;cursor:pointer;font-family:\'Roboto Condensed\',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;">Reload</button>';
     }
   }
 }
-loadAll();
 
 // ── Color scale ──
 function cellColors(val, min, max, side, col) {
@@ -460,6 +294,7 @@ function fmt(v, col) {
   return n.toFixed(2);
 }
 
+// ── Render table with fully inline styles ──
 function renderTable() {
   const cols = views[currentView];
   const data = [...dataStore[currentSide]];
@@ -479,59 +314,68 @@ function renderTable() {
     stats[k] = { min:Math.min(...vals), max:Math.max(...vals) };
   });
 
+  // Set table to min-content width so it never squishes — scroll handles overflow
+  const table = document.getElementById('ntdTable');
+  table.style.cssText = 'border-collapse:collapse;text-align:center;font-family:\'Roboto Condensed\',sans-serif;width:100%;min-width:' + (cols.length * 80) + 'px;';
+
+  // TH styles fully inline
+  const thStyle = 'padding:10px 12px;font-family:\'Roboto Condensed\',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#ffffff;background:#111d35;border-bottom:2px solid #1e3058;border-top:none;border-left:none;border-right:none;cursor:pointer;white-space:nowrap;user-select:none;';
+
+  const thead = document.getElementById('ntdHead');
   thead.innerHTML =
-    `<th class="ntd-rank" style="cursor:default"></th>` +
+    `<th style="${thStyle}width:32px;cursor:default;"></th>` +
     cols.map(c => {
-      const cls = c===sortState.col ? (sortState.asc?"sort-asc":"sort-desc") : "";
-      const align = c==="Team" ? "text-align:left;padding-left:10px;" : "";
-      return `<th class="${cls}" data-col="${c}" style="${align}">${displayNames[c]||c}</th>`;
+      let sort = '';
+      if (c === sortState.col) sort = sortState.asc ? ' ▲' : ' ▼';
+      const align = c === "Team" ? 'text-align:left;padding-left:10px;' : '';
+      return `<th data-col="${c}" style="${thStyle}${align}">${displayNames[c]||c}${sort ? '<span style="color:#3b82f6;font-size:9px;">' + sort + '</span>' : ''}</th>`;
     }).join("");
 
+  // TD styles fully inline
+  const tdBase = 'padding:7px 12px;font-family:\'Roboto Condensed\',sans-serif;font-size:14px;font-weight:800;color:#fff;border-bottom:1px solid rgba(30,48,88,0.4);border-top:none;border-left:none;border-right:none;white-space:nowrap;';
+
+  const tbody = document.getElementById('ntdBody');
   tbody.innerHTML = data.map((row,idx) => {
     const team = (row.Team||"").trim().toUpperCase();
     const logo = teamLogos[team]||"";
-    let html = `<tr><td class="ntd-rank">${idx+1}</td>`;
-    html += `<td style="padding:0"><div class="ntd-team"><img src="${logo}" alt="${team}" onerror="this.style.visibility='hidden'"><span>${team}</span></div></td>`;
+    const rowBg = idx%2===0 ? '#0d1526' : '#060a14';
+
+    let html = `<tr style="background:${rowBg};" onmouseover="this.style.background='rgba(59,130,246,0.12)'" onmouseout="this.style.background='${rowBg}'">`;
+    // Rank cell
+    html += `<td style="${tdBase}width:32px;font-size:11px;color:#64748b;text-align:center;">${idx+1}</td>`;
+    // Team cell — logo + abbr, fully inline
+    html += `<td style="${tdBase}padding:0;text-align:left;">
+      <div style="display:flex;align-items:center;gap:8px;padding:0 0 0 8px;white-space:nowrap;">
+        <img src="${logo}" alt="${team}" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;display:block;" onerror="this.style.visibility='hidden'">
+        <span style="font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;">${team}</span>
+      </div>
+    </td>`;
+    // Data cells
     cols.slice(1).forEach(col => {
       const val = parseFloat(row[col]);
       const c = cellColors(val, stats[col].min, stats[col].max, currentSide, col);
-      const style = c ? `background:${c.bg};color:${c.text};` : `color:#e2e8f0;`;
-      html += `<td style="${style}">${fmt(val,col)}</td>`;
+      const extraStyle = c ? `background:${c.bg};color:${c.text};` : 'color:#e2e8f0;';
+      html += `<td style="${tdBase}${extraStyle}">${fmt(val,col)}</td>`;
     });
     return html + `</tr>`;
   }).join("");
 
+  // Sort click handlers
   thead.querySelectorAll("th[data-col]").forEach(th => {
+    th.addEventListener('mouseover', () => { th.style.background = 'rgba(59,130,246,0.2)'; });
+    th.addEventListener('mouseout',  () => { th.style.background = '#111d35'; });
     th.onclick = () => {
       const col = th.dataset.col;
-      if (col==="Team") return;
-      sortState.asc = sortState.col===col ? !sortState.asc : false;
+      if (col === "Team") return;
+      sortState.asc = sortState.col === col ? !sortState.asc : false;
       sortState.col = col;
       renderTable();
     };
   });
 }
 
-// Button handlers
-document.querySelectorAll("#nfl-team-dash .ntd-toggle").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#nfl-team-dash .ntd-toggle").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    currentSide = btn.dataset.side;
-    sortState = {col:null,asc:false};
-    renderTable();
-  });
-});
-
-document.querySelectorAll("#nfl-team-dash .ntd-view").forEach(tab => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll("#nfl-team-dash .ntd-view").forEach(t=>t.classList.remove("active"));
-    tab.classList.add("active");
-    currentView = tab.dataset.view;
-    sortState = {col:null,asc:false};
-    renderTable();
-  });
-});
+buildControls();
+loadAll();
 
 })();
 </script>
