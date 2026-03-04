@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFL Player Contracts | xep.ai</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d1526;
+  --bg2:     #111d35;
+  --bg3:     #162040;
+  --border:  #1e2d50;
+  --accent:  #3b82f6;
+  --accent2: #60a5fa;
+  --gold:    #f59e0b;
+  --green:   #22c55e;
+  --orange:  #f97316;
+  --red:     #ef4444;
+  --purple:  #a78bfa;
+  --text:    #e2e8f0;
+  --muted:   #64748b;
+  --muted2:  #94a3b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 13px 24px; display: flex; align-items: center; gap: 16px; }
+.logo { font-size: 15px; font-weight: 700; color: var(--accent2); text-decoration: none; }
+.logo em { color: var(--gold); font-style: normal; }
+.hd { width: 1px; height: 18px; background: var(--border); }
+.ht { font-size: 14px; font-weight: 600; color: var(--text); }
+.hp { background: rgba(59,130,246,.15); color: var(--accent2); border: 1px solid rgba(59,130,246,.3); font-size: 10px; font-weight: 600; letter-spacing: .5px; padding: 2px 8px; border-radius: 20px; }
+
+/* MAIN */
+.main { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
+
+/* HERO */
+.hero { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.hstat { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; min-width: 140px; flex: 1; }
+.hstat .hv { font-size: 21px; font-weight: 700; color: var(--accent2); line-height: 1; }
+.hstat .hv.gold { color: var(--gold); }
+.hstat .hv.green { color: var(--green); }
+.hstat .hv.purple { color: var(--purple); }
+.hstat .hl { font-size: 11px; color: var(--muted2); margin-top: 3px; }
+
+/* FILTER BAR */
+.fbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 12px; }
+.fg { display: flex; flex-direction: column; gap: 3px; }
+.fg label { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .4px; text-transform: uppercase; }
+.fg select, .fg input { background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0 10px; font-family: 'Inter', sans-serif; font-size: 13px; outline: none; height: 32px; transition: border-color .15s; }
+.fg input { min-width: 160px; }
+.fg select:focus, .fg input:focus { border-color: var(--accent); }
+.btn-r { background: transparent; border: 1px solid var(--border); color: var(--muted2); border-radius: 6px; padding: 0 14px; height: 32px; font-size: 12px; font-weight: 500; cursor: pointer; align-self: flex-end; transition: border-color .15s, color .15s; }
+.btn-r:hover { border-color: var(--accent); color: var(--accent2); }
+
+/* HINT */
+.hint { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 8px 14px; background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2); border-radius: 8px; font-size: 12px; color: var(--accent2); font-weight: 500; }
+
+/* TABLE */
+.tw { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.ts { overflow-x: auto; overflow-y: auto; max-height: 1200px; -webkit-overflow-scrolling: touch; }
+.ts table { table-layout: auto; width: max-content; min-width: 100%; }
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--bg3); }
+thead { position: sticky; top: 0; z-index: 2; }
+th { font-size: 10px; font-weight: 700; letter-spacing: 0px; text-transform: uppercase; color: #fff; padding: 10px 6px; white-space: nowrap; cursor: pointer; user-select: none; border-bottom: 1px solid rgba(255,255,255,.06); transition: color .15s; }
+th:hover { color: var(--accent2); }
+th.srt { color: var(--accent2); }
+.sa { font-size: 9px; margin-left: 3px; }
+tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .1s; cursor: pointer; }
+tbody tr:nth-child(even) { background: rgba(255,255,255,.018); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(59,130,246,.07); }
+td { padding: 9px 6px; white-space: nowrap; font-size: 13px; color: #fff; font-weight: 600; }
+td.tp { font-weight: 700; color: #fff; vertical-align: middle; padding: 8px 12px; }
+td.tn { font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+td.tm { color: var(--muted2); font-weight: 500; }
+.tf { padding: 8px 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+/* POS BADGE */
+.pos { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,.08); color: #fff; }
+
+/* CAP % BAR */
+.cap-bar { display: flex; align-items: center; gap: 4px; }
+.cap-bg  { width: 28px; background: var(--bg3); border-radius: 3px; height: 6px; overflow: hidden; flex-shrink: 0; }
+.cap-fill { height: 100%; border-radius: 3px; }
+.cap-val { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* MODAL */
+.ov { position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(3px); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; }
+.ov.open { display: flex; }
+.mo { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.mo-hd { background: var(--bg3); padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; border-radius: 12px 12px 0 0; }
+.mo-nm { font-size: 20px; font-weight: 700; color: #fff; }
+.mo-sb { font-size: 12px; color: var(--muted2); margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mo-x  { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; }
+.mo-x:hover { color: #fff; }
+.mo-bd { padding: 18px 20px; }
+.mo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.mo-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.mo-card .mv { font-size: 18px; font-weight: 700; color: var(--accent2); line-height: 1; font-variant-numeric: tabular-nums; }
+.mo-card .mv.gold { color: var(--gold); }
+.mo-card .mv.green { color: var(--green); }
+.mo-card .mv.purple { color: var(--purple); }
+.mo-card .ml { font-size: 10px; font-weight: 600; color: var(--muted2); margin-top: 3px; letter-spacing: .3px; text-transform: uppercase; }
+.mo-sec { font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.mo-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(30,45,80,.4); font-size: 13px; }
+.mo-row:last-child { border-bottom: none; }
+.mo-row .lbl { color: var(--muted2); font-weight: 500; }
+.mo-row .val { font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+
+/* LOADING */
+.ld { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px; color: var(--muted2); font-size: 13px; }
+.sp { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.nd { display: flex; justify-content: center; padding: 48px; color: var(--muted); font-size: 13px; }
+
+/* CAP % COLOR */
+.cap-hi  { color: var(--red); }
+.cap-mid { color: var(--orange); }
+.cap-lo  { color: var(--green); }
+
+
+  .header { padding: 10px 12px; gap: 8px; }
+  .ht { font-size: 12px; }
+  .fbar { gap: 6px; }
+  .fg { flex: 1; min-width: 120px; }
+  .fg input { min-width: unset; width: 100%; }
+  .fg select { width: 100%; }
+  .hint { font-size: 11px; padding: 7px 10px; }
+  th { font-size: 10px; padding: 7px 8px; letter-spacing: 0; }
+  td { padding: 7px 8px; font-size: 11px; }
+  .cap-bg { width: 36px; }
+  .cap-val { font-size: 11px; min-width: 30px; }
+  .tf { flex-direction: column; gap: 2px; }
+  .tf span:last-child { display: none; }
+  .mo { border-radius: 10px; }
+  .mo-nm { font-size: 16px; }
+  .mo-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mo-card .mv { font-size: 15px; }
+  .pos { font-size: 10px; padding: 1px 5px; }
+  }
+
+
+  /* Tighten remaining cols */
+  th:nth-child(3), td:nth-child(3) { width: 58px !important; }
+  th:nth-child(6), td:nth-child(6) { width: 62px !important; }
+  th:nth-child(8), td:nth-child(8) { width: 70px !important; }
+  th:nth-child(9), td:nth-child(9) { width: 90px !important; }
+  th:first-child, td:first-child    { width: 130px !important; min-width: 130px !important; }
+  .ts { max-height: 900px; }
+  th { font-size: 9px; padding: 8px 5px; }
+  td { padding: 7px 5px; font-size: 11px; }
+  td.tp { padding: 7px 8px; }
+  td.tp div:first-child { font-size: 12px; }
+  .cap-bar { gap: 3px; }
+  .cap-bg  { width: 22px; }
+  .cap-val { font-size: 10px; }
+}
+
+@media (max-width: 768px) {
+  .main { padding: 10px; }
+  .header { padding: 10px 12px; gap: 8px; }
+  .ht { font-size: 12px; }
+  .fbar { gap: 6px; }
+  .fg { flex: 1; min-width: 120px; }
+  .fg input { min-width: unset; width: 100%; }
+  .fg select { width: 100%; }
+  .hint { font-size: 11px; padding: 7px 10px; }
+  .tw { border-radius: 8px; }
+  th { font-size: 10px; padding: 8px 10px; white-space: nowrap; }
+  td { padding: 8px 10px; font-size: 12px; }
+  td.tp { padding: 8px 10px; }
+  .tf { flex-direction: column; gap: 2px; }
+  .tf span:last-child { display: none; }
+  .mo-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mo-card .mv { font-size: 15px; }
+  .mo-nm { font-size: 16px; }
+}
+@media (min-width: 769px) {
+  td:not(:first-child) { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a class="logo" href="#">xep<em>.</em>ai</a>
+  <div class="hd"></div>
+  <span class="ht">NFL Player Contracts</span>
+  <span class="hp">2025 CAP DATA</span>
+</header>
+
+<div class="main">
+  <div class="fbar">
+    <div class="fg"><label>Search</label><input id="srch" type="text" placeholder="Player or team…" oninput="render()"></div>
+    <div class="fg"><label>Position</label><select id="fpos" onchange="render()"><option value="">All Positions</option></select></div>
+    <div class="fg"><label>Team</label><select id="fteam" onchange="render()"><option value="">All Teams</option></select></div>
+    <div class="fg"><label>Year Signed</label><select id="fyr" onchange="render()"><option value="">All Years</option></select></div>
+    <button class="btn-r" onclick="resetAll()">Reset</button>
+  </div>
+
+  <div class="hint">👆 Click any player row to view full contract breakdown</div>
+  <div id="tbl" class="tw"><div class="ld"><div class="sp"></div>Loading contract data…</div></div>
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="ovClick(event)">
+  <div class="mo">
+    <div class="mo-hd">
+      <div><div class="mo-nm" id="mN"></div><div class="mo-sb" id="mS"></div></div>
+      <button class="mo-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mo-bd" id="mB"></div>
+  </div>
+</div>
+
+<script>
+const URL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=313591008&single=true&output=csv';
+
+let data = [];
+const srt = { k: 'cap_number', d: -1 };
+
+// ── CSV ───────────────────────────────────────────────────
+function parseCSV(txt) {
+  const lines = txt.trim().split('\n');
+  const hs = lines[0].split(',').map(h => h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line => {
+    const vals=[]; let cur='', q=false;
+    for(const c of line){
+      if(c==='"')q=!q;
+      else if(c===','&&!q){vals.push(cur.trim());cur='';}
+      else cur+=c;
+    }
+    vals.push(cur.trim());
+    const o={}; hs.forEach((h,i)=>{o[h]=vals[i]??'';});
+    return o;
+  });
+}
+
+const N = v => {
+  if(v==null||v==='')return null;
+  let s=String(v).trim().replace(/[$,%\s]/g,'').replace(/,/g,'');
+  // handle M/K suffix
+  if(/[Mm]$/.test(s)){const x=parseFloat(s);return isNaN(x)?null:x*1e6;}
+  if(/[Kk]$/.test(s)){const x=parseFloat(s);return isNaN(x)?null:x*1e3;}
+  const x=parseFloat(s);return isNaN(x)?null:x;
+};
+const fmtM = v => v==null?'—':'$'+v.toFixed(2)+'M';
+const fmtM0 = v => v==null?'—':'$'+Math.round(v)+'M';
+const fmtM1 = v => v==null?'—':'$'+v.toFixed(1)+'M';
+const fmtPct = v => v==null?'—':(v*100).toFixed(2)+'%';
+const fmtY = v => v==null?'—':v+' yr'+(v!==1?'s':'');
+
+function norm(r){
+  return {
+    player: r.player||'',
+    team:   (r.latest_team||'').trim(),
+    position: (r.position||'').trim().replace(/^SAF$/i,'S'),
+    year_signed: r.year_signed||'',
+    years:  N(r.years),
+    value:  N(r.value),
+    apy:    N(r.apy),
+    guaranteed: N(r.guaranteed),
+    college: r.college||'',
+    draft_year: r.draft_year||'',
+    draft_overall: N(r.draft_overall),
+    base_salary: N(r.base_salary),
+    guaranteed_salary: N(r.guaranteed_salary),
+    cap_number: N(r.cap_number),
+    cap_percent: N(r.cap_percent),
+    get yrs_left(){
+      const ys=parseInt(this.year_signed),yrs=this.years;
+      if(!ys||yrs==null)return null;
+      const exp=ys+yrs; return Math.max(0,exp-2026);
+    }
+  };
+}
+
+// ── LOAD ─────────────────────────────────────────────────
+async function loadAll(){
+  try{
+    const r=await fetch(URL_CSV);
+    const t=await r.text();
+    data=parseCSV(t).map(norm).filter(r=>r.player);
+    initFilters();
+    render();
+  }catch(e){
+    document.getElementById('tbl').innerHTML='<div class="nd">Failed to load data — please refresh.</div>';
+  }
+}
+
+function initFilters(){
+  pop('fpos',[...new Set(data.map(r=>r.position).filter(Boolean))].sort());
+  pop('fteam',[...new Set(data.map(r=>r.team).filter(Boolean))].sort());
+  pop('fyr',[...new Set(data.map(r=>r.year_signed).filter(Boolean))].sort((a,b)=>b-a));
+}
+function pop(id,vs){const el=document.getElementById(id);vs.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});}
+
+
+// ── SORT ─────────────────────────────────────────────────
+const NKS=['years','yrs_left','value','apy','guaranteed','cap_number','cap_percent','draft_overall','year_signed','base_salary','guaranteed_salary'];
+function sortR(rows,k,d){
+  return[...rows].sort((a,b)=>{
+    let av=a[k],bv=b[k];
+    if(NKS.includes(k)){av=av==null?-Infinity:+av;bv=bv==null?-Infinity:+bv;}
+    else{av=(av||'').toString().toLowerCase();bv=(bv||'').toString().toLowerCase();}
+    if(av===bv)return 0;
+    if(av===-Infinity)return 1;if(bv===-Infinity)return-1;
+    return av<bv?-d:d;
+  });
+}
+function ar(k,sk,sd){if(k!==sk)return'';return`<span class="sa">${sd===1?'▲':'▼'}</span>`;}
+function thClick(k){if(srt.k===k)srt.d*=-1;else{srt.k=k;srt.d=-1;}render();}
+
+
+// ── CAP % COLOR ───────────────────────────────────────────
+function capColor(p){
+  if(p==null)return'var(--muted2)';
+  if(p>=0.12)return'var(--red)';
+  if(p>=0.06)return'var(--orange)';
+  return'var(--green)';
+}
+function capClass(p){
+  if(p==null)return'';
+  if(p>=0.12)return'cap-hi';
+  if(p>=0.06)return'cap-mid';
+  return'cap-lo';
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function render(){
+  const srch=document.getElementById('srch').value.toLowerCase();
+  const pos=document.getElementById('fpos').value;
+  const team=document.getElementById('fteam').value;
+  const yr=document.getElementById('fyr').value;
+  const{k,d}=srt;
+
+  let rows=data.filter(r=>{
+    if(srch&&!r.player.toLowerCase().includes(srch)&&!r.team.toLowerCase().includes(srch))return false;
+    if(pos&&r.position!==pos)return false;
+    if(team&&r.team!==team)return false;
+    if(yr&&r.year_signed!=yr)return false;
+    return true;
+  });
+  rows=sortR(rows,k,d).slice(0,500);
+
+  const TH=(key,lbl,center=false)=>
+    `<th onclick="thClick('${key}')" class="${k===key?'srt':''}"${center?' style="text-align:center"':''}>${lbl}${ar(key,k,d)}</th>`;
+
+  let h=`<div class="ts"><table>
+  <thead><tr>
+    ${TH('player','Player')}
+    ${TH('years','Yrs',true)}
+    ${TH('yrs_left','Yrs Left',true)}
+    ${TH('year_signed','Signed',true)}
+    ${TH('value','Total Value',true)}
+    ${TH('apy','APY',true)}
+    ${TH('guaranteed','Guaranteed',true)}
+    ${TH('cap_number','2026 Cap Hit',true)}
+    ${TH('cap_percent','2026 Cap %',true)}
+  </tr></thead><tbody>`;
+
+  rows.forEach(r=>{
+    const idx=data.indexOf(r);
+    const cp=r.cap_percent;
+    const cc=capColor(cp);
+    const barW=cp!=null?Math.min(100,(cp*100)/35*100):0;
+
+    h+=`<tr onclick="openM(${idx})">`;
+    h+=`<td class="tp">
+      <div style="font-weight:700;color:#fff;font-size:13px;line-height:1.2">${r.player}</div>
+      <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
+        <span style="font-size:11px;color:var(--muted2);font-weight:500">${r.team||'—'}</span>
+        <span style="color:var(--muted);font-size:10px">·</span>
+        <span class="pos pos-${r.position}" style="font-size:10px;padding:1px 5px">${r.position||'—'}</span>
+      </div>
+    </td>`;
+    h+=`<td class="tn" style="color:#fff">${r.years!=null?r.years+'yr':'—'}</td>`;
+    h+=`<td class="tn" style="color:${r.yrs_left===0?'var(--red)':r.yrs_left===1?'var(--orange)':'var(--green)'}">${r.yrs_left!=null?r.yrs_left+'yr':'—'}</td>`;
+    h+=`<td class="tn" style="color:#fff">${r.year_signed||'—'}</td>`;
+    h+=`<td class="tn" style="color:var(--text)">${fmtM0(r.value)}</td>`;
+    h+=`<td class="tn" style="color:var(--gold)">${fmtM1(r.apy)}</td>`;
+    h+=`<td class="tn" style="color:var(--green)">${fmtM0(r.guaranteed)}</td>`;
+    h+=`<td class="tn" style="color:var(--accent2)">${fmtM1(r.cap_number)}</td>`;
+    h+=`<td class="tn">
+      <div class="cap-bar">
+        <div class="cap-bg"><div class="cap-fill" style="width:${barW}%;background:${cc}"></div></div>
+        <span class="cap-val ${capClass(cp)}">${fmtPct(cp)}</span>
+      </div>
+    </td>`;
+    h+=`</tr>`;
+  });
+
+  h+=`</tbody></table></div>
+  <div class="tf">
+    <span>${rows.length} contract${rows.length!==1?'s':''}${rows.length===500?' (max 500)':''}</span>
+    <span>Cap % = share of NFL salary cap · Click any row for full details</span>
+  </div>`;
+
+  document.getElementById('tbl').innerHTML=h;
+}
+
+function resetAll(){
+  document.getElementById('srch').value='';
+  document.getElementById('fpos').value='';
+  document.getElementById('fteam').value='';
+  document.getElementById('fyr').value='';
+  srt.k='cap_number'; srt.d=-1;
+  render();
+}
+
+// ── MODAL ─────────────────────────────────────────────────
+function openM(idx){
+  const r=data[idx]; if(!r)return;
+  document.getElementById('mN').textContent=r.player;
+
+  const draftStr=r.draft_overall?`${r.draft_year} Draft — Pick #${r.draft_overall}`:'Undrafted';
+  document.getElementById('mS').innerHTML=
+    `<span class="pos pos-${r.position}">${r.position||'?'}</span>`+
+    `<span>${r.team||'—'}</span>`+
+    (r.college?`<span>${r.college}</span>`:'')+
+    `<span style="color:var(--muted)">${draftStr}</span>`;
+
+  const cards=[
+    {v:fmtM0(r.value),    l:'Total Value',  c:''},
+    {v:fmtM0(r.apy),      l:'APY',          c:'gold'},
+    {v:fmtM0(r.guaranteed),l:'Guaranteed',  c:'green'},
+    {v:fmtM(r.cap_number),l:'2026 Cap Hit',     c:''},
+    {v:fmtPct(r.cap_percent),l:'2026 Cap %',    c:capClass(r.cap_percent)},
+    {v:fmtY(r.years),    l:'Contract Length',c:''},
+  ];
+
+  let b='<div class="mo-grid">';
+  cards.forEach(c=>{
+    b+=`<div class="mo-card"><div class="mv ${c.c}">${c.v}</div><div class="ml">${c.l}</div></div>`;
+  });
+  b+='</div>';
+
+  b+='<div class="mo-sec">Contract Details</div>';
+  const rows2=[
+    ['Year Signed', r.year_signed||'—'],
+    ['Base Salary', fmtM(r.base_salary)],
+    ['Guaranteed Salary', fmtM(r.guaranteed_salary)],
+    ['Total Guaranteed', fmtM0(r.guaranteed)],
+    ['Years Remaining', r.yrs_left!=null?r.yrs_left+' yr(s)':'—'],
+    ['2026 Cap Number', fmtM(r.cap_number)],
+    ['2026 Cap %', fmtPct(r.cap_percent)],
+    ['Total Value', fmtM0(r.value)],
+    ['APY', fmtM0(r.apy)],
+    ['Years', fmtY(r.years)],
+  ];
+  rows2.forEach(([l,v])=>{
+    b+=`<div class="mo-row"><span class="lbl">${l}</span><span class="val">${v}</span></div>`;
+  });
+
+  if(r.college||r.draft_overall){
+    b+='<div class="mo-sec" style="margin-top:14px">Draft Info</div>';
+    [
+      ['College', r.college||'—'],
+      ['Draft Year', r.draft_year||'—'],
+      ['Overall Pick', r.draft_overall?'#'+r.draft_overall:'Undrafted'],
+    ].forEach(([l,v])=>{
+      b+=`<div class="mo-row"><span class="lbl">${l}</span><span class="val">${v}</span></div>`;
+    });
+  }
+
+  document.getElementById('mB').innerHTML=b;
+  document.getElementById('ov').classList.add('open');
+}
+
+function ovClick(e){if(e.target===document.getElementById('ov'))closeModal();}
+function closeModal(){document.getElementById('ov').classList.remove('open');}
+
+loadAll();
+</script>
+</body>
+</html>
