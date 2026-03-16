@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xEP NFL Draft Board 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c14;
+    --surface: #0d1520;
+    --card: #111827;
+    --header: #14245c;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-glow: rgba(59,130,246,0.18);
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: rgba(59,130,246,0.15);
+    --row-hover: rgba(59,130,246,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Roboto Condensed', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: linear-gradient(135deg, #0a1628 0%, var(--header) 60%, #1e3a8a 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .logo-title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #fff;
+  }
+  .logo-title span { color: var(--accent); }
+  .header-tag {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: none;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+
+  /* ── TAB NAV ── */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── CONTROLS ── */
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px 9px 36px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 15px;
+    pointer-events: none;
+  }
+  .filter-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+
+  .reset-btn {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 6px;
+    color: #fca5a5;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .reset-btn:hover {
+    background: rgba(239,68,68,0.2);
+    border-color: rgba(239,68,68,0.5);
+    color: #fff;
+  }
+
+  .count-badge {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    padding: 8px 4px;
+  }
+
+  /* ── BIG BOARD TABLE ── */
+  .board-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .board-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .board-table thead tr {
+    background: linear-gradient(90deg, #14245c, #1e3a8a);
+    border-bottom: 2px solid var(--accent);
+  }
+  .board-table th {
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #93c5fd;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    transition: color 0.2s;
+  }
+  .board-table th:hover { color: #fff; }
+  .board-table th .sort-arrow {
+    display: inline-block;
+    margin-left: 4px;
+    opacity: 0.4;
+    font-size: 10px;
+  }
+  .board-table th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+
+  .board-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .board-table tbody tr:hover { background: var(--row-hover); }
+  .board-table tbody tr.expanded { background: rgba(59,130,246,0.05); }
+
+  .board-table td {
+    padding: 5px 10px;
+    vertical-align: middle;
+  }
+
+  /* rank cell */
+  .rank-cell {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--accent);
+    min-width: 44px;
+    text-align: center;
+  }
+  .rank-cell.top10 { color: var(--gold); }
+
+  /* player name */
+  .player-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  /* position badge */
+  .pos-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* athlete score bar */
+  .score-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+  }
+  .score-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .score-val {
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 32px;
+    text-align: right;
+  }
+
+  /* fit teams */
+  .fit-teams {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 200px;
+  }
+  .team-chip {
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.25);
+    color: #93c5fd;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .team-chip:hover {
+    background: rgba(59,130,246,0.3);
+    color: #fff;
+  }
+
+  /* ── EXPANDED ROW ── */
+  .expand-row td {
+    padding: 0;
+    background: rgba(20,36,92,0.3);
+  }
+  .expand-content {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .expand-stat {
+    text-align: center;
+  }
+  .expand-stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .expand-stat-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .expand-stat-val.highlight { color: var(--accent); }
+
+  /* ── TEAM NEEDS TABLE ── */
+  .needs-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .needs-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .needs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  .needs-table thead tr {
+    background: linear-gradient(90deg, #14245c, #1e3a8a);
+    border-bottom: 2px solid var(--accent);
+  }
+  .needs-table th {
+    padding: 11px 14px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #93c5fd;
+    white-space: nowrap;
+  }
+  .needs-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+  .needs-table tbody tr:hover { background: var(--row-hover); }
+  .needs-table td {
+    padding: 10px 14px;
+    vertical-align: middle;
+  }
+  .team-name-cell {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .pick-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    display: inline-block;
+  }
+  .pick-badge.early { background: var(--gold); color: #000; }
+  .need-pill {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .need-pill.primary { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; }
+  .need-pill.secondary { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fcd34d; }
+  .need-pill.tertiary { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #93c5fd; }
+
+  /* top prospects for need */
+  .need-prospects {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .need-prospect-name {
+    color: var(--accent);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .need-prospect-name:hover { color: #fff; }
+
+  /* ── MATCH PANEL ── */
+  .match-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .match-panel h3 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .match-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .match-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 10px 12px;
+  }
+  .match-card-team {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .match-card-player {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .match-card-pos {
+    font-size: 10px;
+    color: var(--accent);
+    margin-top: 1px;
+  }
+
+  /* ── LOADING ── */
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 16px;
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(59,130,246,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    .site-header { padding: 10px 14px; }
+    .logo-title { font-size: 16px; }
+    .main-wrap { padding: 12px 10px; }
+    .tab-btn { padding: 8px 12px; font-size: 12px; }
+    .controls-bar { gap: 8px; }
+    .filter-group { gap: 6px; }
+    .filter-select { font-size: 12px; padding: 7px 10px; }
+
+    /* Hide less-critical columns on mobile */
+    .col-school, .col-age, .col-height, .col-weight { display: none; }
+    .col-fit { display: none; }
+
+    .expand-content { grid-template-columns: repeat(2, 1fr); }
+
+    .needs-table .col-need3, .needs-table .col-need4 { display: none; }
+
+    .match-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .rank-cell { font-size: 13px; min-width: 34px; }
+    .player-name { font-size: 13px; }
+    .board-table td { padding: 8px 8px; }
+    .board-table th { padding: 9px 8px; font-size: 10px; }
+  }
+
+  @media (max-width: 480px) {
+    .col-class { display: none; }
+    .score-wrap { min-width: 70px; }
+    .score-bar-bg { display: none; }
+  }
+
+  /* ── POSITION COLORS ── */
+  .pos-QB { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+  .pos-WR { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+  .pos-CB { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+  .pos-OT { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+  .pos-OG { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+  .pos-OC { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+  .pos-EDGE { background: rgba(168,85,247,0.15); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.3); }
+  .pos-DT { background: rgba(236,72,153,0.13); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
+  .pos-LB { background: rgba(20,184,166,0.13); color: #5eead4; border: 1px solid rgba(20,184,166,0.3); }
+  .pos-S  { background: rgba(34,197,94,0.13); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+  .pos-TE { background: rgba(251,146,60,0.13); color: #fdba74; border: 1px solid rgba(251,146,60,0.3); }
+  .pos-RB { background: rgba(99,102,241,0.13); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
+  .pos-K  { background: rgba(156,163,175,0.13); color: #d1d5db; border: 1px solid rgba(156,163,175,0.3); }
+  .pos-P  { background: rgba(156,163,175,0.1); color: #9ca3af; border: 1px solid rgba(156,163,175,0.2); }
+
+  /* score color */
+  .score-elite { color: var(--gold); }
+  .score-good  { color: var(--green); }
+  .score-avg   { color: var(--text); }
+  .score-low   { color: var(--muted); }
+
+  .bar-elite { background: linear-gradient(90deg, var(--gold), #fbbf24); }
+  .bar-good  { background: linear-gradient(90deg, var(--green), #34d399); }
+  .bar-avg   { background: linear-gradient(90deg, var(--accent), #60a5fa); }
+  .bar-low   { background: #475569; }
+
+  /* column widths */
+  .col-rank   { width: 52px; text-align: center; }
+  .col-player { min-width: 140px; }
+  .col-pos    { width: 68px; }
+  .col-class  { width: 64px; }
+  .col-school { width: 110px; }
+  .col-age    { width: 52px; text-align: center; }
+  .col-height { width: 60px; text-align: center; }
+  .col-weight { width: 60px; text-align: center; }
+  .col-score  { width: 130px; }
+  .col-fit    { min-width: 140px; }
+
+  /* sticky header util */
+  .table-scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="logo">
+    <img src="https://xep.ai/wp-content/uploads/2024/07/Logo-PNG-2.png" alt="xEP" style="height:46px;width:auto;display:block;">
+    <div class="logo-title">NFL <span>Draft Board</span> 2025</div>
+  </div>
+  <div class="header-tag" id="prospect-count"></div>
+</header>
+
+<!-- ── MAIN ── -->
+<div class="main-wrap">
+
+  <!-- TABS -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="bigboard">📋 Big Board</button>
+    <button class="tab-btn" data-tab="teamneeds">🏈 Team Needs</button>
+    <button class="tab-btn" data-tab="matchmaker">🎯 Draft Match</button>
+  </div>
+
+  <!-- ══════════════════════ TAB 1 — BIG BOARD ══════════════════════ -->
+  <div class="tab-panel active" id="tab-bigboard">
+    <div class="controls-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="bb-search" placeholder="Search player, school…">
+      </div>
+      <div class="filter-group">
+        <select class="filter-select" id="bb-pos-filter">
+          <option value="">All Positions</option>
+        </select>
+        <button class="reset-btn" id="bb-reset">✕ Reset</button>
+      </div>
+      <div class="count-badge" id="bb-count"></div>
+    </div>
+
+    <div id="bb-loading" class="loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading Draft Board…</div>
+    </div>
+    <div class="board-wrap" id="bb-wrap" style="display:none">
+      <div class="table-scroll">
+        <table class="board-table" id="bb-table">
+          <thead>
+            <tr>
+              <th class="col-rank sorted" data-col="xEP_Rank" data-dir="asc">Rank <span class="sort-arrow">▲</span></th>
+              <th class="col-player" data-col="Player">Player <span class="sort-arrow">↕</span></th>
+              <th class="col-pos" data-col="Position">Pos <span class="sort-arrow">↕</span></th>
+              <th class="col-class" data-col="Class">Class <span class="sort-arrow">↕</span></th>
+              <th class="col-school" data-col="School">School <span class="sort-arrow">↕</span></th>
+              <th class="col-age" data-col="Age">Age <span class="sort-arrow">↕</span></th>
+              <th class="col-height" data-col="Height">Ht <span class="sort-arrow">↕</span></th>
+              <th class="col-weight" data-col="Weight">Wt <span class="sort-arrow">↕</span></th>
+              <th class="col-score" data-col="athlete_score_std">Athlete Score <span class="sort-arrow">↕</span></th>
+              <th class="col-fit">Fit Teams</th>
+            </tr>
+          </thead>
+          <tbody id="bb-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TAB 2 — TEAM NEEDS ══════════════════════ -->
+  <div class="tab-panel" id="tab-teamneeds">
+    <div class="needs-controls">
+      <div class="search-wrap" style="max-width:300px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="tn-search" placeholder="Search team…">
+      </div>
+      <div class="count-badge" id="tn-count"></div>
+    </div>
+
+    <div id="tn-loading" class="loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading Team Needs…</div>
+    </div>
+    <div class="needs-wrap" id="tn-wrap" style="display:none">
+      <div class="table-scroll">
+        <table class="needs-table" id="tn-table">
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th style="text-align:center">1st Pick</th>
+              <th style="text-align:center">Need #1</th>
+              <th style="text-align:center">Need #2</th>
+              <th class="col-need3" style="text-align:center">Need #3</th>
+              <th class="col-need4" style="text-align:center">Need #4</th>
+            </tr>
+          </thead>
+          <tbody id="tn-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-matchmaker">
+    <div id="mm-loading" class="loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text">Building Match Data…</div>
+    </div>
+    <div id="mm-content" style="display:none">
+      <div class="controls-bar" style="margin-bottom:16px">
+        <div class="search-wrap" style="max-width:260px">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="mm-search" placeholder="Filter by team or position…">
+        </div>
+        <div class="filter-group">
+          <select class="filter-select" id="mm-pos-filter">
+            <option value="">All Positions</option>
+          </select>
+          <button class="reset-btn" id="mm-reset">✕ Reset</button>
+        </div>
+      </div>
+      <div class="section-label">Best xEP Prospect Match · 1st Round Picks Only (Picks 1–32) · Each team's first 1st-round pick shown</div>
+      <div class="match-grid" id="mm-grid"></div>
+    </div>
+  </div>
+
+</div><!-- /main-wrap -->
+
+<script>
+// ─────────────────────────────────────────
+//  DATA FETCH
+// ─────────────────────────────────────────
+const BB_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1498444546&single=true&output=csv';
+const TN_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=476919259&single=true&output=csv';
+
+let bbData = [], tnData = [];
+let bbFiltered = [], tnFiltered = [];
+let bbSort = { col: 'xEP_Rank', dir: 'asc' };
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let c of line) {
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').trim());
+    return obj;
+  }).filter(r => Object.values(r).some(v => v !== ''));
+}
+
+async function fetchCSV(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('CSV fetch failed');
+  return parseCSV(await res.text());
+}
+
+// ─────────────────────────────────────────
+//  UTILITIES
+// ─────────────────────────────────────────
+function posClass(pos) {
+  const map = { QB:'QB', WR:'WR', CB:'CB', OT:'OT', OG:'OG', OC:'OC', EDGE:'EDGE', DT:'DT', LB:'LB', S:'S', TE:'TE', RB:'RB', K:'K', P:'P' };
+  for (const key of Object.keys(map)) { if ((pos||'').toUpperCase().includes(key)) return 'pos-'+map[key]; }
+  return 'pos-avg';
+}
+
+function scoreClass(v) {
+  if (v >= 1.5) return 'score-elite';
+  if (v >= 0.5) return 'score-good';
+  if (v >= -0.5) return 'score-avg';
+  return 'score-low';
+}
+function barClass(v) {
+  if (v >= 1.5) return 'bar-elite';
+  if (v >= 0.5) return 'bar-good';
+  if (v >= -0.5) return 'bar-avg';
+  return 'bar-low';
+}
+// Normalize score to 0-100% for bar (range roughly -3 to 3)
+function barPct(v) { return Math.max(2, Math.min(98, ((v + 3) / 6) * 100)); }
+
+function needPillClass(i) { return ['primary','secondary','tertiary','tertiary'][i] || 'tertiary'; }
+
+function pickCategory(p) {
+  const n = parseInt(p);
+  if (isNaN(n)) return 'late';
+  if (n <= 15) return 'early';
+  if (n <= 64) return 'mid';
+  return 'late';
+}
+
+// ─────────────────────────────────────────
+//  BIG BOARD
+// ─────────────────────────────────────────
+function buildBBFilters() {
+  const positions = [...new Set(bbData.map(r => r.Position).filter(Boolean))].sort();
+  const posSel = document.getElementById('bb-pos-filter');
+  positions.forEach(p => { const o = document.createElement('option'); o.value = p; o.text = p; posSel.appendChild(o); });
+
+  // also fill mm pos filter
+  const mmPos = document.getElementById('mm-pos-filter');
+  positions.forEach(p => {
+    const o = document.createElement('option'); o.value = p; o.text = p; mmPos.appendChild(o);
+  });
+}
+
+function applyBBFilters() {
+  const q    = document.getElementById('bb-search').value.toLowerCase();
+  const pos  = document.getElementById('bb-pos-filter').value;
+
+  bbFiltered = bbData.filter(r => {
+    if (q && !`${r.Player} ${r.School}`.toLowerCase().includes(q)) return false;
+    if (pos && r.Position !== pos) return false;
+    return true;
+  });
+
+  // sort
+  bbFiltered.sort((a, b) => {
+    let av = a[bbSort.col], bv = b[bbSort.col];
+    const na = parseFloat(av), nb = parseFloat(bv);
+    if (!isNaN(na) && !isNaN(nb)) { av = na; bv = nb; }
+    if (av < bv) return bbSort.dir === 'asc' ? -1 : 1;
+    if (av > bv) return bbSort.dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  renderBBTable();
+}
+
+function renderBBTable() {
+  const tbody = document.getElementById('bb-tbody');
+  document.getElementById('bb-count').textContent = `${bbFiltered.length} prospect${bbFiltered.length !== 1 ? 's' : ''}`;
+
+  if (!bbFiltered.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-state">No prospects match your filters.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = bbFiltered.map((r, idx) => {
+    const rank  = parseInt(r.xEP_Rank) || idx + 1;
+    const sv    = parseFloat(r.athlete_score_std);
+    const svDisp = isNaN(sv) ? '—' : sv.toFixed(2);
+    const pct   = isNaN(sv) ? 0 : barPct(sv);
+    const fits  = (r.fit_teams || '').split(/[;,|]/).map(t => t.trim()).filter(Boolean);
+
+    return `<tr data-idx="${idx}" class="bb-row">
+      <td class="rank-cell col-rank ${rank <= 10 ? 'top10' : ''}">${rank}</td>
+      <td class="col-player">
+        <div class="player-name">${r.Player || '—'}</div>
+      </td>
+      <td class="col-pos"><span class="pos-badge ${posClass(r.Position)}">${r.Position || '—'}</span></td>
+      <td class="col-class">${r.Class || '—'}</td>
+      <td class="col-school">${r.School || '—'}</td>
+      <td class="col-age" style="text-align:center">${r.Age || '—'}</td>
+      <td class="col-height" style="text-align:center">${r.Height || '—'}</td>
+      <td class="col-weight" style="text-align:center">${r.Weight || '—'}</td>
+      <td class="col-score">
+        <div class="score-wrap">
+          <div class="score-bar-bg"><div class="score-bar-fill ${barClass(sv)}" style="width:${pct}%"></div></div>
+          <span class="score-val ${scoreClass(sv)}">${svDisp}</span>
+        </div>
+      </td>
+      <td class="col-fit">
+        <div class="fit-teams">
+          ${fits.map(t => `<span class="team-chip" data-team="${t}">${t}</span>`).join('')}
+        </div>
+      </td>
+    </tr>
+    <tr class="expand-row" id="exp-${idx}" style="display:none">
+      <td colspan="10">
+        <div class="expand-content">
+          <div class="expand-stat">
+            <div class="expand-stat-label">xEP Rank</div>
+            <div class="expand-stat-val highlight">#${rank}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="expand-stat-label">Position</div>
+            <div class="expand-stat-val">${r.Position || '—'}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="expand-stat-label">Class</div>
+            <div class="expand-stat-val">${r.Class || '—'}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="expand-stat-label">Age</div>
+            <div class="expand-stat-val">${r.Age || '—'}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="expand-stat-label">Height</div>
+            <div class="expand-stat-val">${r.Height || '—'}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="expand-stat-label">Weight</div>
+            <div class="expand-stat-val">${r.Weight || '—'}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="expand-stat-label">Athlete Score</div>
+            <div class="expand-stat-val ${scoreClass(sv)}">${svDisp}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="expand-stat-label">School</div>
+            <div class="expand-stat-val" style="font-size:14px">${r.School || '—'}</div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+//  TEAM NEEDS
+// ─────────────────────────────────────────
+function getTopProspects(pos, limit = 3) {
+  return bbData.filter(r => r.Position === pos)
+    .sort((a, b) => parseInt(a.xEP_Rank) - parseInt(b.xEP_Rank))
+    .slice(0, limit);
+}
+
+function applyTNFilters() {
+  const q = document.getElementById('tn-search').value.toLowerCase();
+  tnFiltered = tnData.filter(r => {
+    if (q && !r.Team.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  renderTNTable();
+}
+
+function renderTNTable() {
+  const tbody = document.getElementById('tn-tbody');
+  document.getElementById('tn-count').textContent = `${tnFiltered.length} team${tnFiltered.length !== 1 ? 's' : ''}`;
+
+  if (!tnFiltered.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No teams match your filters.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = tnFiltered.map(r => {
+    const needs = [r.Need1, r.Need2, r.Need3, r.Need4].filter(Boolean);
+    const pickN = parseInt(r.FirstPick);
+    const pickCat = pickCategory(r.FirstPick);
+
+    return `<tr>
+      <td class="team-name-cell">${r.Team}</td>
+      <td style="text-align:center"><span class="pick-badge ${pickCat === 'early' ? 'early' : ''}">${isNaN(pickN) ? r.FirstPick || '—' : '#' + pickN}</span></td>
+      <td style="text-align:center">${needs[0] ? `<span class="need-pill primary">${needs[0]}</span>` : '—'}</td>
+      <td style="text-align:center">${needs[1] ? `<span class="need-pill secondary">${needs[1]}</span>` : '—'}</td>
+      <td class="col-need3" style="text-align:center">${needs[2] ? `<span class="need-pill tertiary">${needs[2]}</span>` : '—'}</td>
+      <td class="col-need4" style="text-align:center">${needs[3] ? `<span class="need-pill tertiary">${needs[3]}</span>` : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+//  MATCH MAKER
+// ─────────────────────────────────────────
+function buildMatchData() {
+  // Only teams with a first pick in rounds 1 (picks 1-32)
+  // Sort teams by pick number ascending so earlier picks get first dibs
+  const firstRoundTeams = tnData
+    .filter(t => { const n = parseInt(t.FirstPick); return !isNaN(n) && n >= 1 && n <= 32; })
+    .sort((a, b) => parseInt(a.FirstPick) - parseInt(b.FirstPick));
+
+  const playerUsage = {}; // track how many times each player is matched
+  const matchMap = {};
+
+  firstRoundTeams.forEach(team => {
+    // Try xEP fit_teams first
+    const fits = bbData.filter(p => {
+      if ((playerUsage[p.Player] || 0) >= 2) return false;
+      const fitTeams = (p.fit_teams || '').split(/[;,|]/).map(t => t.trim());
+      return fitTeams.some(t => t.toLowerCase() === team.Team.toLowerCase());
+    }).sort((a, b) => parseInt(a.xEP_Rank) - parseInt(b.xEP_Rank));
+
+    if (fits.length) {
+      const prospect = fits[0];
+      playerUsage[prospect.Player] = (playerUsage[prospect.Player] || 0) + 1;
+      matchMap[team.Team] = { team, prospect, isFallback: false };
+      return;
+    }
+
+    // Fallback: best available at need1 position not over usage limit
+    const need1Prospects = bbData.filter(p => {
+      if ((playerUsage[p.Player] || 0) >= 2) return false;
+      return p.Position === team.Need1;
+    }).sort((a, b) => parseInt(a.xEP_Rank) - parseInt(b.xEP_Rank));
+
+    if (need1Prospects.length) {
+      const prospect = need1Prospects[0];
+      playerUsage[prospect.Player] = (playerUsage[prospect.Player] || 0) + 1;
+      matchMap[team.Team] = { team, prospect, isFallback: true };
+    }
+  });
+
+  return matchMap;
+}
+
+let allMatchData = {};
+
+function applyMMFilters() {
+  const q   = (document.getElementById('mm-search').value || '').toLowerCase();
+  const pos = document.getElementById('mm-pos-filter').value;
+
+  const grid = document.getElementById('mm-grid');
+  const entries = Object.values(allMatchData).filter(({ team, prospect }) => {
+    if (q && !team.Team.toLowerCase().includes(q) && !prospect.Position.toLowerCase().includes(q)) return false;
+    if (pos && prospect.Position !== pos) return false;
+    return true;
+  }).sort((a, b) => parseInt(a.team.FirstPick) - parseInt(b.team.FirstPick));
+
+  if (!entries.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">No matches found.</div>`;
+    return;
+  }
+
+  grid.innerHTML = entries.map(({ team, prospect, isFallback }) => {
+    const sv = parseFloat(prospect.athlete_score_std);
+    const rank = prospect.xEP_Rank;
+    return `<div class="match-card">
+      <div class="match-card-team">${team.Team} · Pick #${team.FirstPick || '?'}</div>
+      <div class="match-card-player">${prospect.Player}</div>
+      <div class="match-card-pos">
+        <span class="pos-badge ${posClass(prospect.Position)}" style="font-size:10px;padding:2px 6px">${prospect.Position}</span>
+        &nbsp;Rank #${rank}
+        ${isFallback ? '<span style="color:var(--muted);font-size:10px"> · Need fit</span>' : '<span style="color:var(--green);font-size:10px"> · xEP fit ✓</span>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+//  EVENT DELEGATION
+// ─────────────────────────────────────────
+document.addEventListener('click', e => {
+  // Tab switching
+  const tabBtn = e.target.closest('.tab-btn');
+  if (tabBtn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tabBtn.classList.add('active');
+    document.getElementById('tab-' + tabBtn.dataset.tab).classList.add('active');
+    return;
+  }
+
+  // Sort columns
+  const th = e.target.closest('th[data-col]');
+  if (th && th.closest('#bb-table')) {
+    const col = th.dataset.col;
+    if (bbSort.col === col) bbSort.dir = bbSort.dir === 'asc' ? 'desc' : 'asc';
+    else { bbSort.col = col; bbSort.dir = 'asc'; }
+    document.querySelectorAll('#bb-table th').forEach(h => {
+      h.classList.remove('sorted');
+      h.querySelector('.sort-arrow').textContent = '↕';
+    });
+    th.classList.add('sorted');
+    th.querySelector('.sort-arrow').textContent = bbSort.dir === 'asc' ? '▲' : '▼';
+    applyBBFilters();
+    return;
+  }
+
+  // Row expand / collapse
+  const row = e.target.closest('.bb-row');
+  if (row && !e.target.closest('.team-chip')) {
+    const idx = row.dataset.idx;
+    const expRow = document.getElementById('exp-' + idx);
+    if (expRow) {
+      const open = expRow.style.display !== 'none';
+      expRow.style.display = open ? 'none' : 'table-row';
+      row.classList.toggle('expanded', !open);
+    }
+    return;
+  }
+
+  // Team chip → jump to Team Needs tab and filter
+  const chip = e.target.closest('.team-chip');
+  if (chip) {
+    const team = chip.dataset.team;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-tab="teamneeds"]').classList.add('active');
+    document.getElementById('tab-teamneeds').classList.add('active');
+    document.getElementById('tn-search').value = team;
+    applyTNFilters();
+    return;
+  }
+
+  // Prospect name in team needs → jump to big board search
+  const pName = e.target.closest('.need-prospect-name');
+  if (pName) {
+    const player = pName.dataset.player;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-tab="bigboard"]').classList.add('active');
+    document.getElementById('tab-bigboard').classList.add('active');
+    document.getElementById('bb-search').value = player;
+    applyBBFilters();
+    return;
+  }
+});
+
+// Input listeners
+document.getElementById('bb-search').addEventListener('input', applyBBFilters);
+document.getElementById('bb-pos-filter').addEventListener('change', applyBBFilters);
+document.getElementById('bb-reset').addEventListener('click', () => {
+  document.getElementById('bb-search').value = '';
+  document.getElementById('bb-pos-filter').value = '';
+  applyBBFilters();
+});
+
+document.getElementById('tn-search').addEventListener('input', applyTNFilters);
+
+document.getElementById('mm-search').addEventListener('input', applyMMFilters);
+document.getElementById('mm-pos-filter').addEventListener('change', applyMMFilters);
+document.getElementById('mm-reset').addEventListener('click', () => {
+  document.getElementById('mm-search').value = '';
+  document.getElementById('mm-pos-filter').value = '';
+  applyMMFilters();
+});
+
+// ─────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────
+async function init() {
+  try {
+    const [bb, tn] = await Promise.all([fetchCSV(BB_URL), fetchCSV(TN_URL)]);
+    bbData = bb;
+    tnData = tn;
+    tnFiltered = [...tnData];
+
+    buildBBFilters();
+    applyBBFilters();
+
+    document.getElementById('bb-loading').style.display = 'none';
+    document.getElementById('bb-wrap').style.display = 'block';
+
+    renderTNTable();
+    document.getElementById('tn-loading').style.display = 'none';
+    document.getElementById('tn-wrap').style.display = 'block';
+
+    allMatchData = buildMatchData();
+    applyMMFilters();
+    document.getElementById('mm-loading').style.display = 'none';
+    document.getElementById('mm-content').style.display = 'block';
+
+    document.getElementById('prospect-count').textContent = `${bbData.length} Prospects`;
+    document.getElementById('prospect-count').style.display = 'block';
+
+  } catch (err) {
+    console.error(err);
+    ['bb-loading','tn-loading','mm-loading'].forEach(id => {
+      document.getElementById(id).innerHTML = `<div class="empty-state" style="color:var(--red)">⚠️ Failed to load data. Check CSV URLs.</div>`;
+    });
+  }
+}
+
+init();
+</script>
+</body>
+</html>
