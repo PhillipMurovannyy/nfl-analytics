@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xEP Mock Draft Simulator 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg:#080c14;--surface:#0d1520;--panel:#0f1a2e;--hdr:#14245c;
+  --accent:#3b82f6;--accent2:#1d4ed8;--gold:#f59e0b;--green:#10b981;
+  --red:#ef4444;--text:#e2e8f0;--muted:#64748b;
+  --border:rgba(59,130,246,0.13);--border-hi:rgba(59,130,246,0.32);--hover:rgba(59,130,246,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Roboto Condensed',sans-serif;font-size:14px;line-height:1.3;}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:10px;padding:7px 14px;background:var(--hdr);border-bottom:2px solid var(--accent);height:46px;}
+.toolbar img{height:66px;width:auto;flex-shrink:0;}
+.t-title{font-size:20px;font-weight:800;color:#fff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.t-title span{color:#93c5fd;}
+.t-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.pbadge{background:rgba(59,130,246,.18);border:1px solid var(--border-hi);border-radius:4px;padding:3px 10px;font-size:12px;font-weight:700;color:#93c5fd;white-space:nowrap;}
+.tbtn{border:1px solid;border-radius:4px;font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;transition:all .15s;white-space:nowrap;background:none;}
+.tbtn-undo{border-color:rgba(100,116,139,.28);color:var(--muted);}
+.tbtn-undo:hover{background:rgba(100,116,139,.2);color:var(--text);}
+.tbtn-reset{border-color:rgba(239,68,68,.28);color:#fca5a5;}
+.tbtn-reset:hover{background:rgba(239,68,68,.2);color:#fff;}
+.tbtn-shot{border-color:rgba(59,130,246,.35);color:#93c5fd;}
+.tbtn-shot:hover{background:rgba(59,130,246,.18);color:#fff;}
+
+/* PROGRESS */
+.prog-strip{height:3px;background:rgba(255,255,255,.05);}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#60a5fa);transition:width .35s ease;width:0%;}
+
+/* TWO PANELS */
+.wrap{display:grid;grid-template-columns:1fr 350px;min-height:calc(100vh - 49px);}
+
+/* LEFT */
+.left{display:flex;flex-direction:column;border-right:1px solid var(--border);}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;border-bottom:1px solid var(--border);background:rgba(13,21,32,.9);}
+.plabel{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);}
+.pcount{font-size:10px;font-weight:700;color:var(--accent);}
+.picks-scroll{flex:1;}
+
+/* pick row */
+.pr{display:grid;grid-template-columns:28px 44px 1fr auto;align-items:center;gap:8px;padding:5px 12px;border-bottom:1px solid rgba(255,255,255,.03);transition:background .1s;}
+.pr.done:hover{background:var(--hover);}
+.pr.pending{opacity:.22;}
+.pr.active{background:rgba(59,130,246,.07);border-left:3px solid var(--accent);padding-left:9px;opacity:1;}
+.pr-n{font-size:12px;font-weight:800;color:var(--accent);text-align:right;}
+.pr-n.g{color:var(--gold);}
+.pr-t{background:var(--hdr);border:1px solid var(--border-hi);border-radius:3px;font-size:11px;font-weight:800;color:#fff;text-align:center;padding:2px 4px;letter-spacing:.4px;}
+.pr-p{min-width:0;}
+.pr-pn{font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pr-pn.e{color:var(--muted);font-weight:400;font-style:italic;font-size:11px;}
+.pr-ps{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chip{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;white-space:nowrap;flex-shrink:0;}
+
+/* RIGHT */
+.right{display:flex;flex-direction:column;background:var(--panel);}
+.otc{background:linear-gradient(150deg,#0f1e42,#1a3070);border-bottom:1px solid var(--border-hi);padding:10px 14px;flex-shrink:0;}
+.otc-lbl{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#93c5fd;margin-bottom:2px;}
+.otc-row{display:flex;align-items:baseline;gap:10px;}
+.otc-tm{font-size:22px;font-weight:800;color:#fff;line-height:1;}
+.otc-pn{font-size:12px;color:#93c5fd;font-weight:600;}
+.needs{display:flex;align-items:center;gap:5px;padding:5px 12px;border-bottom:1px solid var(--border);background:rgba(20,36,92,.22);flex-wrap:wrap;min-height:30px;}
+.n-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.npill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;}
+.npill.n1{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.32);color:#fca5a5;}
+.npill.n2{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.28);color:#fcd34d;}
+.npill.n3{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:#93c5fd;}
+.npill.n4{background:rgba(100,116,139,.1);border:1px solid rgba(100,116,139,.2);color:var(--muted);}
+
+.sa{padding:7px 12px 0;flex-shrink:0;}
+.sb{position:relative;}
+.sb input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Roboto Condensed',sans-serif;font-size:13px;padding:6px 10px 6px 28px;outline:none;transition:border-color .15s;}
+.sb input:focus{border-color:var(--accent);}
+.sico{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;}
+.ps{display:flex;gap:3px;padding:6px 0 4px;overflow-x:auto;scrollbar-width:none;}
+.ps::-webkit-scrollbar{display:none;}
+.ppill{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:3px;color:var(--muted);font-family:'Roboto Condensed',sans-serif;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;transition:all .1s;}
+.ppill:hover{color:var(--text);border-color:rgba(255,255,255,.18);}
+.ppill.active{background:rgba(59,130,246,.16);border-color:var(--accent);color:#fff;}
+.acount{font-size:10px;color:var(--muted);padding:0 12px 4px;}
+
+.pscroll{flex:1;padding-bottom:10px;}
+.prow{display:grid;grid-template-columns:24px 1fr auto auto;align-items:center;gap:7px;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:background .1s;}
+.prow:hover{background:rgba(59,130,246,.1);}
+.prow:active{background:rgba(59,130,246,.18);}
+.p-rk{font-size:12px;font-weight:800;color:var(--accent);text-align:right;}
+.p-rk.g{color:var(--gold);}
+.p-inf{min-width:0;}
+.p-nm{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.p-sb{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ndot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px rgba(16,185,129,.5);flex-shrink:0;}
+
+/* STATES */
+.rload,.comp,.err{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;text-align:center;padding:24px;min-height:200px;}
+.spinner{width:30px;height:30px;border:3px solid rgba(59,130,246,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin-t{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.comp-icon{font-size:42px;}
+.comp-title{font-size:17px;font-weight:800;color:#fff;}
+.comp-sub{font-size:12px;color:var(--muted);line-height:1.6;}
+.btn-exp{background:var(--accent);border:none;border-radius:4px;color:#fff;font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:700;padding:8px 18px;cursor:pointer;transition:background .15s;}
+.btn-exp:hover{background:var(--accent2);}
+
+/* POSITION COLORS */
+.c-QB{background:rgba(239,68,68,.14);color:#fca5a5;border:1px solid rgba(239,68,68,.28);}
+.c-WR{background:rgba(59,130,246,.14);color:#93c5fd;border:1px solid rgba(59,130,246,.28);}
+.c-CB{background:rgba(16,185,129,.13);color:#6ee7b7;border:1px solid rgba(16,185,129,.28);}
+.c-OT{background:rgba(245,158,11,.14);color:#fcd34d;border:1px solid rgba(245,158,11,.28);}
+.c-OG{background:rgba(245,158,11,.11);color:#fbbf24;border:1px solid rgba(245,158,11,.22);}
+.c-OC{background:rgba(245,158,11,.09);color:#f59e0b;border:1px solid rgba(245,158,11,.18);}
+.c-EDGE{background:rgba(168,85,247,.13);color:#d8b4fe;border:1px solid rgba(168,85,247,.28);}
+.c-DT{background:rgba(236,72,153,.12);color:#f9a8d4;border:1px solid rgba(236,72,153,.28);}
+.c-LB{background:rgba(20,184,166,.12);color:#5eead4;border:1px solid rgba(20,184,166,.28);}
+.c-S{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.28);}
+.c-TE{background:rgba(251,146,60,.12);color:#fdba74;border:1px solid rgba(251,146,60,.28);}
+.c-RB{background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.28);}
+.c-def{background:rgba(100,116,139,.12);color:#94a3b8;border:1px solid rgba(100,116,139,.28);}
+
+/* MODAL */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+.modal-backdrop.open{display:flex;}
+.modal-box{background:#080c14;border:1px solid rgba(59,130,246,.28);border-radius:10px;width:100%;max-width:620px;margin:auto;box-shadow:0 24px 64px rgba(0,0,0,.8);}
+.modal-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(59,130,246,.15);}
+.modal-ttl{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.modal-acts{display:flex;gap:8px;align-items:center;}
+.m-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:0 4px;}
+.m-close:hover{color:#fff;}
+
+/* DRAFT CARD */
+#shot-card{background:#080c14;padding:20px 18px 16px;font-family:'Roboto Condensed',sans-serif;}
+.card-hdr{text-align:center;margin-bottom:14px;}
+.card-logo{height:36px;width:auto;display:block;margin:0 auto 8px;}
+.card-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#475569;margin-bottom:4px;}
+.card-big{font-size:34px;font-weight:800;color:#fff;letter-spacing:.3px;line-height:1.1;}
+.card-big span{color:#3b82f6;}
+.card-tag{font-size:10px;color:#475569;margin-top:3px;letter-spacing:.5px;}
+.card-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,.3),transparent);margin:10px 0;}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.c-row{display:grid;grid-template-columns:26px 38px 1fr auto;align-items:center;gap:6px;padding:5px 8px;background:#0d1520;border-radius:3px;}
+.c-num{font-size:12px;font-weight:800;color:#3b82f6;text-align:right;}
+.c-num.cg{color:#f59e0b;}
+.c-team{font-size:10px;font-weight:800;color:#fff;background:#14245c;border:1px solid rgba(59,130,246,.28);border-radius:2px;text-align:center;padding:1px 3px;letter-spacing:.4px;}
+.c-pname{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.c-pos{font-size:9px;font-weight:700;padding:1px 5px;border-radius:2px;text-transform:uppercase;white-space:nowrap;}
+.card-foot{text-align:center;margin-top:12px;font-size:9px;color:#1e293b;letter-spacing:1.5px;text-transform:uppercase;}
+
+/* MOBILE */
+@media(max-width:680px){
+  .wrap{grid-template-columns:1fr;grid-template-rows:auto auto;}
+  .left{border-right:none;border-bottom:1px solid var(--border);}
+  .card-grid{grid-template-columns:1fr;}
+  .toolbar{gap:6px;padding:6px 10px;}
+  .toolbar img{height:22px;}
+  .t-title{font-size:11px;}
+  .t-title span{display:none;}
+  .pbadge{font-size:10px;padding:3px 7px;}
+  .tbtn{font-size:10px;padding:4px 7px;}
+  /* shorten button labels on mobile */
+  .tbtn-shot .btn-label{display:none;}
+  .tbtn-undo .btn-label{display:none;}
+  .tbtn-reset .btn-label{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <img src="https://xep.ai/wp-content/uploads/2024/07/Logo-PNG-2.png" alt="xEP">
+  <div class="t-title">Mock Draft <span>Simulator</span> 2025</div>
+  <div class="t-right">
+    <div class="pbadge" id="pbadge">Pick 1 of 32</div>
+    <button class="tbtn tbtn-shot" id="btn-shot">📸 <span class="btn-label">Card</span></button>
+    <button class="tbtn tbtn-undo" id="btn-undo">↩ <span class="btn-label">Undo</span></button>
+    <button class="tbtn tbtn-reset" id="btn-reset">↺ <span class="btn-label">Reset</span></button>
+  </div>
+</div>
+<div class="prog-strip"><div class="prog-fill" id="prog-fill"></div></div>
+
+<div class="wrap">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="ph">
+      <div class="plabel">2025 First Round</div>
+      <div class="pcount" id="pcount">0 of 32 picked</div>
+    </div>
+    <div class="picks-scroll" id="picks-scroll"></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right" id="right">
+    <div class="rload" id="rload">
+      <div class="spinner"></div>
+      <div class="spin-t">Loading Prospects…</div>
+    </div>
+
+    <div id="pickui" style="display:none;flex-direction:column;flex:1;">
+      <div class="otc">
+        <div class="otc-lbl">On The Clock</div>
+        <div class="otc-row">
+          <div class="otc-tm" id="otc-tm">—</div>
+          <div class="otc-pn" id="otc-pn">Pick 1 · 1st Round</div>
+        </div>
+      </div>
+      <div class="needs" id="needs"></div>
+      <div class="sa">
+        <div class="sb">
+          <span class="sico">🔍</span>
+          <input type="text" id="psearch" placeholder="Search prospects…" autocomplete="off">
+        </div>
+        <div class="ps" id="posstrip"></div>
+      </div>
+      <div class="acount" id="acount"></div>
+      <div class="pscroll" id="pscroll"></div>
+    </div>
+
+    <div class="comp" id="comp" style="display:none;">
+      <div class="comp-icon">🏆</div>
+      <div class="comp-title">Draft Complete!</div>
+      <div class="comp-sub">All 32 picks made.<br>Review your board on the left.</div>
+      <button class="btn-exp" id="btn-export">⬇ Export CSV</button>
+      <button class="tbtn tbtn-shot" id="btn-shot2" style="margin-top:2px;">📸 Generate Card</button>
+      <button class="tbtn tbtn-reset" id="btn-reset2" style="margin-top:2px;">↺ Start Over</button>
+    </div>
+
+    <div class="err" id="err" style="display:none;">
+      <div style="font-size:28px;">⚠️</div>
+      <div style="font-size:13px;color:var(--muted);">Failed to load data.<br>Check network and retry.</div>
+      <button class="tbtn tbtn-shot" id="btn-retry" style="margin-top:4px;">↺ Retry</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal-box">
+    <div class="modal-bar">
+      <div class="modal-ttl">Draft Card Preview</div>
+      <div class="modal-acts">
+        <button class="tbtn tbtn-shot" id="btn-dl">⬇ Save as PNG</button>
+        <button class="m-close" id="btn-mclose">✕</button>
+      </div>
+    </div>
+    <div id="shot-card"></div>
+  </div>
+</div>
+
+<script>
+const ORDER=[
+  {pick:1,team:'LV'},{pick:2,team:'NYJ'},{pick:3,team:'ARI'},{pick:4,team:'TEN'},
+  {pick:5,team:'NYG'},{pick:6,team:'CLE'},{pick:7,team:'WAS'},{pick:8,team:'NO'},
+  {pick:9,team:'KC'},{pick:10,team:'CIN'},{pick:11,team:'MIA'},{pick:12,team:'DAL'},
+  {pick:13,team:'LAR'},{pick:14,team:'BAL'},{pick:15,team:'TB'},{pick:16,team:'NYJ'},
+  {pick:17,team:'DET'},{pick:18,team:'MIN'},{pick:19,team:'CAR'},{pick:20,team:'DAL'},
+  {pick:21,team:'PIT'},{pick:22,team:'LAC'},{pick:23,team:'PHI'},{pick:24,team:'CLE'},
+  {pick:25,team:'CHI'},{pick:26,team:'BUF'},{pick:27,team:'SF'},{pick:28,team:'HOU'},
+  {pick:29,team:'KC'},{pick:30,team:'DEN'},{pick:31,team:'NE'},{pick:32,team:'SEA'}
+];
+
+const BB='https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=1498444546&single=true&output=csv';
+const TN='https://docs.google.com/spreadsheets/d/e/2PACX-1vQubLK6Ykc3SNFSEGne1OI5WKppdgyCSV-4ToPCnvIOT8-uFbaNh81tB1OIyvdoOI5Jht-LzV-9p3gm/pub?gid=476919259&single=true&output=csv';
+
+let allP=[],teamNeeds={},avail=[],picks=new Array(32).fill(null),curIdx=0,posFilt='',srchQ='';
+
+// pos key → css class key
+function pk(pos){
+  const p=(pos||'').toUpperCase();
+  for(const k of ['EDGE','QB','WR','CB','OT','OG','OC','DT','LB','TE','RB','S'])if(p.includes(k))return k;
+  return 'def';
+}
+function chip(pos){return `<span class="chip c-${pk(pos)}">${pos||'?'}</span>`;}
+
+// pos color hex for card
+const POS_HEX={QB:'#ef4444',WR:'#3b82f6',CB:'#10b981',OT:'#f59e0b',OG:'#d97706',OC:'#b45309',EDGE:'#a855f7',DT:'#ec4899',LB:'#14b8a6',S:'#22c55e',TE:'#f97316',RB:'#6366f1',def:'#64748b'};
+function posStyle(pos){const c=POS_HEX[pk(pos)]||POS_HEX.def;return `background:${c}22;color:${c};border:1px solid ${c}55;`;}
+
+function loadCSV(url){
+  return new Promise((res,rej)=>Papa.parse(url,{download:true,header:true,skipEmptyLines:true,complete:r=>res(r.data),error:rej}));
+}
+
+function showPanel(id){
+  ['rload','pickui','comp','err'].forEach(i=>{
+    const el=document.getElementById(i);
+    el.style.display='none';
+  });
+  const el=document.getElementById(id);
+  el.style.display=(id==='pickui')?'flex':'flex';
+}
+
+// ── BOARD ──
+function renderBoard(){
+  const made=picks.filter(Boolean).length;
+  document.getElementById('pcount').textContent=`${made} of 32 picked`;
+  document.getElementById('prog-fill').style.width=`${(made/32)*100}%`;
+  document.getElementById('pbadge').textContent=curIdx<32?`Pick ${curIdx+1} of 32`:'Complete!';
+  document.getElementById('picks-scroll').innerHTML=ORDER.map((s,i)=>{
+    const p=picks[i],isA=i===curIdx&&curIdx<32,cls=p?'done':isA?'active':'pending';
+    return `<div class="pr ${cls}" id="pr-${i}">
+      <div class="pr-n ${s.pick<=10?'g':''}">${s.pick}</div>
+      <div class="pr-t">${s.team}</div>
+      <div class="pr-p">${p
+        ?`<div class="pr-pn">${p.Player}</div><div class="pr-ps">${p.Position}${p.School?' · '+p.School:''}${p.Class?' · '+p.Class:''}</div>`
+        :`<div class="pr-pn e">${isA?'← pick a player':'···'}</div>`
+      }</div>
+      ${p?chip(p.Position):'<div></div>'}
+    </div>`;
+  }).join('');
+  const ae=document.getElementById(`pr-${curIdx}`);
+  if(ae)ae.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+// ── OTC ──
+function renderOTC(){
+  if(curIdx>=32)return;
+  const s=ORDER[curIdx];
+  document.getElementById('otc-tm').textContent=s.team;
+  document.getElementById('otc-pn').textContent=`Pick ${s.pick} · 1st Round`;
+  const tn=teamNeeds[s.team],strip=document.getElementById('needs');
+  if(tn){
+    const nn=[tn.Need1,tn.Need2,tn.Need3,tn.Need4].filter(Boolean);
+    strip.innerHTML=`<span class="n-lbl">Needs</span>`+nn.map((n,i)=>`<span class="npill n${i+1}">${n}</span>`).join('');
+  }else strip.innerHTML=`<span class="n-lbl" style="font-style:italic;color:var(--muted)">No needs data</span>`;
+}
+
+// ── PROSPECTS ──
+function renderProspects(){
+  const s=curIdx<32?ORDER[curIdx]:null,tn=s&&teamNeeds[s.team];
+  const nn=tn?[tn.Need1,tn.Need2,tn.Need3,tn.Need4].filter(Boolean):[];
+  const filtered=avail.filter(p=>{
+    if(posFilt&&p.Position!==posFilt)return false;
+    if(srchQ&&!`${p.Player} ${p.School||''} ${p.Position}`.toLowerCase().includes(srchQ))return false;
+    return true;
+  });
+  document.getElementById('acount').textContent=`${filtered.length} prospect${filtered.length!==1?'s':''} available`;
+  const sc=document.getElementById('pscroll');
+  if(!filtered.length){sc.innerHTML=`<div style="padding:28px;text-align:center;color:var(--muted);font-size:13px">No matches.</div>`;return;}
+  sc.innerHTML=filtered.map(p=>{
+    const r=parseInt(p.xEP_Rank),isN=nn.includes(p.Position);
+    return `<div class="prow" data-player="${p.Player}">
+      <div class="p-rk ${r<=10?'g':''}">${r}</div>
+      <div class="p-inf"><div class="p-nm">${p.Player}</div><div class="p-sb">${p.Position}${p.School?' · '+p.School:''}${p.Class?' · '+p.Class:''}</div></div>
+      ${chip(p.Position)}
+      ${isN?'<div class="ndot"></div>':'<div></div>'}
+    </div>`;
+  }).join('');
+}
+
+function buildPosStrip(){
+  const positions=[...new Set(allP.map(p=>p.Position).filter(Boolean))].sort();
+  document.getElementById('posstrip').innerHTML=
+    `<button class="ppill ${posFilt===''?'active':''}" data-pos="">ALL</button>`+
+    positions.map(p=>`<button class="ppill ${posFilt===p?'active':''}" data-pos="${p}">${p}</button>`).join('');
+}
+
+// ── ACTIONS ──
+function makePick(name){
+  if(curIdx>=32)return;
+  const i=avail.findIndex(p=>p.Player===name);if(i===-1)return;
+  picks[curIdx]=avail.splice(i,1)[0];
+  curIdx++;srchQ='';posFilt='';document.getElementById('psearch').value='';
+  if(curIdx>=32){renderBoard();showPanel('comp');document.getElementById('prog-fill').style.width='100%';}
+  else{renderBoard();renderOTC();buildPosStrip();renderProspects();}
+  setTimeout(()=>{const ae=document.getElementById(`pr-${curIdx}`);if(ae)ae.scrollIntoView({block:'center',behavior:'smooth'});},80);
+}
+
+function undo(){
+  if(curIdx===0)return;
+  curIdx--;const p=picks[curIdx];picks[curIdx]=null;
+  if(p){avail.push(p);avail.sort((a,b)=>parseInt(a.xEP_Rank)-parseInt(b.xEP_Rank));}
+  srchQ='';posFilt='';document.getElementById('psearch').value='';
+  showPanel('pickui');renderBoard();renderOTC();buildPosStrip();renderProspects();
+}
+
+function reset(){
+  curIdx=0;picks=new Array(32).fill(null);avail=allP.map(p=>({...p}));
+  srchQ='';posFilt='';document.getElementById('psearch').value='';
+  showPanel('pickui');renderBoard();renderOTC();buildPosStrip();renderProspects();
+}
+
+function exportCSV(){
+  const rows=['Pick,Team,Player,Position,School,Class,xEP_Rank'];
+  ORDER.forEach((s,i)=>{const p=picks[i];if(p)rows.push(`${s.pick},${s.team},"${p.Player}",${p.Position},"${p.School||''}",${p.Class||''},${p.xEP_Rank}`);});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));a.download='xEP_Mock_Draft_2025.csv';a.click();
+}
+
+// ── DRAFT CARD ──
+function openCard(){
+  const madePicks=ORDER.map((s,i)=>picks[i]?{slot:s,p:picks[i]}:null).filter(Boolean);
+  if(!madePicks.length){alert('Make at least one pick first!');return;}
+
+  const half=Math.ceil(madePicks.length/2);
+  const leftCol=madePicks.slice(0,half),rightCol=madePicks.slice(half);
+
+  function row(item){
+    if(!item)return '';
+    return `<div class="c-row">
+      <div class="c-num ${item.slot.pick<=10?'cg':''}">${item.slot.pick}</div>
+      <div class="c-team">${item.slot.team}</div>
+      <div class="c-pname">${item.p.Player}</div>
+      <div class="c-pos" style="${posStyle(item.p.Position)}">${item.p.Position}</div>
+    </div>`;
+  }
+
+  const gridHTML=`
+    <div style="display:flex;flex-direction:column;gap:2px;">${leftCol.map(row).join('')}</div>
+    <div style="display:flex;flex-direction:column;gap:2px;">${rightCol.map(row).join('')}</div>
+  `;
+
+  const isComplete=curIdx>=32;
+  const subtitle=isComplete?'Full 1st Round Mock Draft':`Mock Draft · ${madePicks.length} of 32 picks`;
+
+  document.getElementById('shot-card').innerHTML=`
+    <div class="card-hdr">
+      <img src="https://xep.ai/wp-content/uploads/2024/07/Logo-PNG-2.png" class="card-logo" crossorigin="anonymous" width="180" height="36" style="height:36px;width:auto;display:block;margin:0 auto 8px;">
+      <div class="card-eyebrow">xEP Analytics · 2025 NFL Draft</div>
+      <div class="card-big">MOCK <span>DRAFT</span> 2025</div>
+      <div class="card-tag">${subtitle}</div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-grid">${gridHTML}</div>
+    <div class="card-foot">xep.ai · Powered by xEP Draft Model</div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+async function downloadCard(){
+  const card=document.getElementById('shot-card');
+  try{
+    const canvas=await html2canvas(card,{
+      backgroundColor:'#080c14',
+      scale:2,
+      useCORS:true,
+      allowTaint:false,
+      logging:false
+    });
+    const a=document.createElement('a');
+    a.href=canvas.toDataURL('image/png');
+    a.download='xEP_Mock_Draft_2025.png';
+    a.click();
+  }catch(e){
+    console.error(e);
+    alert('Screenshot failed — try right-clicking the card image to save manually.');
+  }
+}
+
+// ── EVENTS ──
+document.addEventListener('click',e=>{
+  if(e.target.closest('#btn-reset')||e.target.closest('#btn-reset2')){reset();return;}
+  if(e.target.closest('#btn-undo')){undo();return;}
+  if(e.target.closest('#btn-export')){exportCSV();return;}
+  if(e.target.closest('#btn-shot')||e.target.closest('#btn-shot2')){openCard();return;}
+  if(e.target.closest('#btn-retry')){init();return;}
+  if(e.target.closest('#btn-mclose')||e.target===document.getElementById('modal')){document.getElementById('modal').classList.remove('open');return;}
+  if(e.target.closest('#btn-dl')){downloadCard();return;}
+  const pr=e.target.closest('.prow');if(pr&&curIdx<32){makePick(pr.dataset.player);return;}
+  const pp=e.target.closest('.ppill');
+  if(pp){posFilt=pp.dataset.pos;document.querySelectorAll('.ppill').forEach(x=>x.classList.remove('active'));pp.classList.add('active');renderProspects();return;}
+});
+
+document.getElementById('psearch').addEventListener('input',e=>{srchQ=e.target.value.toLowerCase();renderProspects();});
+
+// ── INIT ──
+async function init(){
+  showPanel('rload');
+  try{
+    const [bb,tn]=await Promise.all([loadCSV(BB),loadCSV(TN)]);
+    allP=bb.sort((a,b)=>parseInt(a.xEP_Rank)-parseInt(b.xEP_Rank));
+    avail=allP.map(p=>({...p}));
+    tn.forEach(r=>{if(r.Team)teamNeeds[r.Team]=r;});
+    showPanel('pickui');renderBoard();renderOTC();buildPosStrip();renderProspects();
+  }catch(e){console.error(e);showPanel('err');}
+}
+init();
+</script>
+</body>
+</html>
