@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NFL Play Explorer | xep.ai</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:      #0d1526;
-  --bg2:     #111d35;
-  --bg3:     #162040;
+  --bg:      #080c14;
+  --bg2:     #0d1520;
+  --bg3:     #14245c;
   --border:  #1e2d50;
   --accent:  #3b82f6;
   --accent2: #60a5fa;
@@ -26,29 +26,55 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; min-height: 100vh; }
 
-.header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 13px 24px; display: flex; align-items: center; gap: 16px; }
-.logo { font-size: 15px; font-weight: 700; color: var(--accent2); font-family: 'Roboto Condensed', sans-serif; text-decoration: none; }
-.logo em { color: var(--gold); font-style: normal; }
-.hdiv { width: 1px; height: 18px; background: var(--border); }
-.htitle { font-size: 14px; font-weight: 600; color: var(--text); font-family: 'Roboto Condensed', sans-serif; }
-.hbadge { background: rgba(59,130,246,.15); color: var(--accent2); border: 1px solid rgba(59,130,246,.3); font-size: 10px; font-weight: 600; letter-spacing: .5px; padding: 2px 8px; border-radius: 20px; font-family: 'Roboto Condensed', sans-serif; }
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #060a12 0%, #14245c 60%, #1e3a8a 100%);
+  border-bottom: 2px solid var(--accent);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+.header-logo { height: 48px; width: auto; display: block; flex-shrink: 0; max-width: 120px; }
+.hdiv { width: 1px; height: 28px; background: rgba(59,130,246,0.3); }
+.htitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Roboto Condensed', sans-serif;
+  letter-spacing: 0.5px;
+}
+.htitle span { color: var(--accent2); }
+.hbadge {
+  background: rgba(59,130,246,.18);
+  color: var(--accent2);
+  border: 1px solid rgba(59,130,246,.35);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-family: 'Roboto Condensed', sans-serif;
+  text-transform: uppercase;
+}
 
 .main { max-width: 1300px; margin: 0 auto; padding: 20px 24px; }
 
 /* TABS */
-.tabs { display: flex; gap: 6px; margin-bottom: 16px; }
-.tab { background: var(--bg2); border: 1px solid var(--border); color: var(--muted2); border-radius: 8px; padding: 9px 28px; font-size: 14px; font-weight: 700; font-family: 'Roboto Condensed', sans-serif; letter-spacing: .5px; cursor: pointer; transition: all .15s; }
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; align-items: center; }
+.tab { background: var(--bg2); border: 1px solid var(--border); color: var(--muted2); border-radius: 6px; padding: 8px 24px; font-size: 13px; font-weight: 700; font-family: 'Roboto Condensed', sans-serif; letter-spacing: .5px; cursor: pointer; transition: all .15s; }
 .tab:hover { border-color: var(--accent); color: var(--accent2); }
 .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 /* PLAYER LIST */
 .plist-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
-.plist-hd { background: var(--bg3); padding: 9px 16px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--muted2); font-family: 'Roboto Condensed', sans-serif; display: flex; align-items: center; justify-content: space-between; }
+.plist-hd { background: var(--bg3); padding: 8px 16px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #93c5fd; font-family: 'Roboto Condensed', sans-serif; display: flex; align-items: center; justify-content: space-between; }
 .plist-hd span { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 11px; }
-.plist-scroll { max-height: 280px; overflow-y: auto; }
+.plist-scroll { max-height: 260px; overflow-y: auto; }
 .plist-scroll::-webkit-scrollbar { width: 4px; }
 .plist-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-.pitem { display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; border-bottom: 1px solid rgba(255,255,255,.03); cursor: pointer; transition: background .1s; width: 100%; gap: 10px; }
+.pitem { display: flex; align-items: center; justify-content: space-between; padding: 7px 16px; border-bottom: 1px solid rgba(255,255,255,.03); cursor: pointer; transition: background .1s; width: 100%; gap: 10px; }
 .pitem:last-child { border-bottom: none; }
 .pitem:hover { background: rgba(59,130,246,.07); }
 .pitem.active { background: rgba(59,130,246,.13); border-left: 3px solid var(--accent); }
@@ -76,47 +102,72 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .btn-r:hover { border-color: var(--accent); color: var(--accent2); }
 .hint { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 6px 14px; background: rgba(59,130,246,.07); border: 1px solid rgba(59,130,246,.18); border-radius: 8px; font-size: 12px; color: var(--accent2); font-weight: 500; }
 
-/* TABLE */
+/* TABLE — clean, no gridlines */
 .tw { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .ts { overflow-x: auto; overflow-y: auto; max-height: 1100px; -webkit-overflow-scrolling: touch; }
-table { width: 100%; border-collapse: collapse; border-spacing: 0; }
+table { border-collapse: collapse; width: 100%; min-width: 100%; }
 thead { position: sticky; top: 0; z-index: 2; }
-thead tr { background: var(--bg3); }
-th { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--muted2); padding: 11px 20px; white-space: nowrap; cursor: pointer; user-select: none; font-family: 'Roboto Condensed', sans-serif; text-align: left; }
+thead tr { background: linear-gradient(90deg, #14245c, #1e3a8a); border-bottom: 2px solid var(--accent); }
+th {
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #93c5fd;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'Roboto Condensed', sans-serif;
+  border: none;
+  white-space: nowrap;
+}
 th.tc { text-align: center; }
 th:hover { color: #fff; }
 th.srt { color: #fff; }
 .sa { font-size: 9px; margin-left: 3px; }
-tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .1s; cursor: pointer; }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: rgba(59,130,246,.07); }
-td { padding: 9px 20px; white-space: nowrap; font-size: 14px; color: #fff; font-weight: 600; font-family: 'Roboto Condensed', sans-serif; text-align: left; }
-td.tc { text-align: center; }
-td.tc { text-align: center; }
-.tf { padding: 8px 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
 
-/* WEEK/OPP CELL — side by side */
+/* Slim rows, no gridlines */
+td {
+  padding: 4px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  font-family: 'Roboto Condensed', sans-serif;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  white-space: nowrap;
+}
+td.tc { text-align: center; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background .15s; cursor: pointer; }
+tbody tr:hover { background: rgba(59,130,246,.08); }
+
+.tf { padding: 7px 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+/* WEEK/OPP CELL */
 .wk-opp { display: flex; align-items: center; gap: 8px; }
-.wk-opp .wklbl { font-size: 12px; color: var(--muted2); font-weight: 500; white-space: nowrap; }
-.wk-opp .opplbl { font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; }
+.wk-opp .wklbl { font-size: 11px; color: var(--muted2); font-weight: 500; white-space: nowrap; }
+.wk-opp .opplbl { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; }
 
-/* QTR/TIME CELL — side by side */
+/* QTR/TIME CELL */
 .qt { display: flex; align-items: center; justify-content: center; gap: 8px; }
-.qt .qtrlbl { font-size: 12px; color: var(--muted2); font-weight: 500; }
-.qt .timelbl { font-size: 14px; font-weight: 700; color: #fff; }
+.qt .qtrlbl { font-size: 11px; color: var(--muted2); font-weight: 500; }
+.qt .timelbl { font-size: 13px; font-weight: 700; color: #fff; }
 
-/* RESULT BADGES */
-.rb { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 12px; font-weight: 700; font-family: 'Roboto Condensed', sans-serif; }
-.rb-TD    { background: rgba(34,197,94,.15);   color: var(--green);   border: 1px solid rgba(34,197,94,.3); }
-.rb-CMP   { background: rgba(59,130,246,.12);  color: var(--accent2); border: 1px solid rgba(59,130,246,.25); }
-.rb-INCMP { background: rgba(100,116,139,.1);  color: var(--muted2);  border: 1px solid rgba(100,116,139,.2); }
-.rb-INT   { background: rgba(239,68,68,.15);   color: var(--red);     border: 1px solid rgba(239,68,68,.3); }
-.rb-SACK  { background: rgba(249,115,22,.15);  color: var(--orange);  border: 1px solid rgba(249,115,22,.3); }
-.rb-SCRM  { background: rgba(167,139,250,.15); color: var(--purple);  border: 1px solid rgba(167,139,250,.3); }
-.rb-1ST   { background: rgba(34,197,94,.15);   color: var(--green);   border: 1px solid rgba(34,197,94,.3); }
-.rb-GAIN  { background: rgba(100,116,139,.1);  color: var(--muted2);  border: 1px solid rgba(100,116,139,.2); }
-.rb-TFL   { background: rgba(239,68,68,.15);   color: var(--red);     border: 1px solid rgba(239,68,68,.3); }
-.rb-FUM   { background: rgba(249,115,22,.15);  color: var(--orange);  border: 1px solid rgba(249,115,22,.3); }
+/* RESULT BADGES — always colored, no grey */
+.rb { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 0.3px; }
+.rb-TD    { background: rgba(34,197,94,.18);   color: #4ade80;   border: 1px solid rgba(34,197,94,.35); }
+.rb-CMP   { background: rgba(59,130,246,.18);  color: #93c5fd;   border: 1px solid rgba(59,130,246,.35); }
+.rb-INCMP { background: rgba(249,115,22,.15);  color: #fb923c;   border: 1px solid rgba(249,115,22,.32); }
+.rb-INT   { background: rgba(239,68,68,.18);   color: #fca5a5;   border: 1px solid rgba(239,68,68,.35); }
+.rb-SACK  { background: rgba(239,68,68,.15);   color: #f87171;   border: 1px solid rgba(239,68,68,.3); }
+.rb-SCRM  { background: rgba(167,139,250,.18); color: #c4b5fd;   border: 1px solid rgba(167,139,250,.35); }
+.rb-1ST   { background: rgba(34,197,94,.18);   color: #4ade80;   border: 1px solid rgba(34,197,94,.35); }
+.rb-GAIN  { background: rgba(59,130,246,.15);  color: #93c5fd;   border: 1px solid rgba(59,130,246,.3); }
+.rb-TFL   { background: rgba(239,68,68,.18);   color: #fca5a5;   border: 1px solid rgba(239,68,68,.35); }
+.rb-FUM   { background: rgba(249,115,22,.18);  color: #fdba74;   border: 1px solid rgba(249,115,22,.35); }
 
 /* LOADING */
 .ld { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px; color: var(--muted2); font-size: 13px; }
@@ -132,8 +183,8 @@ td.tc { text-align: center; }
 .mo { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
 .mo::-webkit-scrollbar { width: 4px; }
 .mo::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-.mo-hd { background: var(--bg3); padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; border-radius: 12px 12px 0 0; }
-.mo-title { font-size: 13px; font-weight: 700; color: var(--accent2); font-family: 'Roboto Condensed', sans-serif; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 5px; }
+.mo-hd { background: linear-gradient(90deg, #14245c, #1e3a8a); padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; border-radius: 12px 12px 0 0; }
+.mo-title { font-size: 13px; font-weight: 700; color: #93c5fd; font-family: 'Roboto Condensed', sans-serif; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 5px; }
 .mo-desc { font-size: 12px; color: var(--muted2); line-height: 1.5; max-width: 520px; }
 .mo-x { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; flex-shrink: 0; margin-left: 12px; }
 .mo-x:hover { color: #fff; }
@@ -158,19 +209,20 @@ td.tc { text-align: center; }
   .main { padding: 10px 12px; }
   .tabs { flex-wrap: wrap; }
   .tab { padding: 8px 18px; font-size: 13px; }
-  th { font-size: 10px; padding: 10px 10px; }
-  td { padding: 9px 10px; font-size: 13px; }
+  th { font-size: 10px; padding: 8px 8px; }
+  td { padding: 4px 8px; font-size: 12px; }
   .mo-grid { grid-template-columns: repeat(2,1fr); }
+  .htitle { font-size: 16px; }
 }
 </style>
 </head>
 <body>
 
 <header class="header">
-  <a class="logo" href="#">xep<em>.</em>ai</a>
+  <img src="https://xep.ai/wp-content/uploads/2024/07/Logo-PNG-2.png" alt="xEP" class="header-logo" width="120" height="48" style="height:48px;width:auto;max-width:120px;">
   <div class="hdiv"></div>
-  <span class="htitle">NFL Play Explorer</span>
-  <span class="hbadge">2025 SEASON</span>
+  <span class="htitle">NFL <span>Play Explorer</span></span>
+  <span class="hbadge">2025 Season</span>
 </header>
 
 <div class="main">
@@ -179,7 +231,7 @@ td.tc { text-align: center; }
     <button class="tab" onclick="switchPos('RB')">RB</button>
     <button class="tab" onclick="switchPos('WR')">WR / TE</button>
     <input id="psearch" type="text" placeholder="Search player..." oninput="filterList(this.value)"
-      style="margin-left:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:0 14px;font-family:'Inter',sans-serif;font-size:13px;outline:none;height:38px;width:200px;transition:border-color .15s;"
+      style="margin-left:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:0 14px;font-family:'Inter',sans-serif;font-size:13px;outline:none;height:36px;width:200px;transition:border-color .15s;"
       onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
   </div>
 
@@ -215,6 +267,12 @@ td.tc { text-align: center; }
 </div>
 
 <script>
+// ── Capitalize first letter of each word ──
+function titleCase(str) {
+  if (!str || str === '—') return str;
+  return str.replace(/\b\w/g, c => c.toUpperCase());
+}
+
 function fldPos(r) {
   const y = N(r.yardline_100);
   if (y == null) return '—';
@@ -255,10 +313,10 @@ function parseCSV(txt) {
 const N    = v => { const x=parseFloat(v); return isNaN(x)?null:x; };
 const fmt2 = v => v==null?'—':v.toFixed(2);
 const fmtP = v => v==null?'—':(v*100).toFixed(1)+'%';
+const fmtP0 = v => v==null?'—':Math.round(v*100)+'%';  // 0 decimals
 const na   = v => (!v||v==='NA'||v==='na')?null:v;
 const naS  = v => na(v)||'—';
 
-// Quarter-relative clock from game_seconds_remaining
 function qtrClock(secs, qtr) {
   const s=N(secs), q=N(qtr);
   if (s==null||q==null) return '—';
@@ -287,10 +345,7 @@ function buildPlayerList() {
     const k=na(r[key]); if (!k) return;
     if (!map[k]) map[k]={ short:k, full:na(r.display_name)||k, team:na(r.posteam)||'?' };
   });
-  const players = Object.values(map).sort((a,b) => {
-    const la=a.full.split(' ').pop(), lb=b.full.split(' ').pop();
-    return la.localeCompare(lb);
-  });
+  const players = Object.values(map).sort((a,b) => a.full.localeCompare(b.full));
   const lbl = pos==='WR'?'WR / TE':pos;
   document.getElementById('plistHd').textContent = `${lbl} — ${players.length} Players`;
   if (!players.length) { document.getElementById('plist').innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px;text-align:center">No players found</div>'; return; }
@@ -396,30 +451,20 @@ function buildSummary(rows,pos) {
     `<div class="stat-pill"><div class="sv ${c||''}">${v}</div><div class="sl">${l}</div></div>`
   ).join('');
   if (pos==='QB') {
-    const passes=rows.filter(r=>r.result_label!=='SACK'&&r.result_label!=='SCRM');
-    const cmps=rows.filter(r=>r.result_label==='CMP'||r.result_label==='TD');
-    const tds=rows.filter(r=>r.result_label==='TD');
-    const ints=rows.filter(r=>r.result_label==='INT');
     const avg=rows.reduce((s,r)=>s+(N(r.epa)||0),0)/rows.length;
-    return pills([['Plays',rows.length,''],['CMP%',passes.length?(cmps.length/passes.length*100).toFixed(1)+'%':'—','gold'],['TDs',tds.length,'green'],['INTs',ints.length,ints.length>0?'red':''],['Avg EPA',avg.toFixed(2),avg>=0?'green':'red']]);
+    return pills([['Plays',rows.length,''],['Avg EPA',avg.toFixed(2),avg>=0?'green':'red']]);
   }
   if (pos==='RB') {
-    const tds=rows.filter(r=>r.result_label==='TD');
-    const fds=rows.filter(r=>r.result_label==='1ST');
-    const avgY=(rows.reduce((s,r)=>s+(N(r.yards_gained)||0),0)/rows.length).toFixed(1);
     const avgE=(rows.reduce((s,r)=>s+(N(r.epa)||0),0)/rows.length).toFixed(2);
-    return pills([['Carries',rows.length,''],['Avg Yds',avgY,'gold'],['TDs',tds.length,'green'],['1st Downs',fds.length,''],['Avg EPA',avgE,+avgE>=0?'green':'red']]);
+    return pills([['Carries',rows.length,''],['Avg EPA',avgE,+avgE>=0?'green':'red']]);
   }
-  const cmps=rows.filter(r=>r.result_label==='CMP'||r.result_label==='TD');
-  const tds=rows.filter(r=>r.result_label==='TD');
-  const avgA=(rows.reduce((s,r)=>s+(N(r.air_yards)||0),0)/rows.length).toFixed(1);
   const avgE=(rows.reduce((s,r)=>s+(N(r.epa)||0),0)/rows.length).toFixed(2);
-  return pills([['Targets',rows.length,''],['Catches',cmps.length,'gold'],['TDs',tds.length,'green'],['Avg AY',avgA,''],['Avg EPA',avgE,+avgE>=0?'green':'red']]);
+  return pills([['Targets',rows.length,''],['Avg EPA',avgE,+avgE>=0?'green':'red']]);
 }
 
 function buildTable(rows,pos,TH) {
   const wkCell = r =>
-    `<td><div class="wk-opp"><span class="wklbl">Week ${r.week||'—'}</span><span class="opplbl">vs ${naS(r.defteam)}</span></div></td>`;
+    `<td><div class="wk-opp"><span class="wklbl">Wk ${r.week||'—'}</span><span class="opplbl">vs ${naS(r.defteam)}</span></div></td>`;
   const qtCell = r =>
     `<td class="tc"><div class="qt"><span class="qtrlbl">${naS(r.qtr_label)}</span><span class="timelbl">${qtrClock(r.game_seconds_remaining,r.qtr)}</span></div></td>`;
 
@@ -441,6 +486,7 @@ function thClick(k) { state.sort.k===k?state.sort.d*=-1:(state.sort.k=k,state.so
 function setF(k,v) { state.filters[k]=v; renderPanel(); }
 function resetF() { state.filters={week:'',result:'',down:''}; renderPanel(); }
 
+// ── MODAL ──
 function openModal(idx) {
   const pos=state.pos, data=state.data[pos]||[], key=pk(pos);
   const rows=data.filter(r=>na(r[key])===state.player);
@@ -459,22 +505,86 @@ function openModal(idx) {
   });
   const r=filtered[idx]; if(!r) return;
   const clock=qtrClock(r.game_seconds_remaining,r.qtr);
-  document.getElementById('mT').textContent=`Wk ${r.week} \u00b7 ${naS(r.qtr_label)} \u00b7 ${clock} \u00b7 ${naS(r.down_distance)}`;
+  document.getElementById('mT').textContent=`Wk ${r.week} · ${naS(r.qtr_label)} · ${clock} · ${naS(r.down_distance)}`;
   document.getElementById('mD').textContent=r.desc||'';
+
   let b='';
   if (pos==='QB') {
-    b+=cards([{v:naS(r.result_label),l:'Result',c:''},{v:r.yards_gained||'0',l:'Yards',c:'gold'},{v:na(r.epa)!=null?fmt2(N(r.epa)):'—',l:'EPA',c:N(r.epa)>=0?'green':'red'},{v:na(r.air_yards)!=null?r.air_yards:'—',l:'Air Yards',c:'cyan'},{v:na(r.yards_after_catch)!=null?r.yards_after_catch:'—',l:'YAC',c:''},{v:na(r.cp)!=null?fmtP(N(r.cp)):'—',l:'Comp Prob',c:''}]);
-    b+=sec('Situation',[['Opponent',naS(r.defteam)],['Field Position',fldPos(r)],['Score Diff',naS(r.score_differential)],['Target',naS(r.receiver)],['Pass Location',naS(r.pass_location)],['Pass Length',naS(r.pass_length)]]);
-    b+=sec('Advanced',[['CPOE',na(r.cpoe)!=null?r.cpoe+'%':'—'],['QB EPA',na(r.qb_epa)!=null?fmt2(N(r.qb_epa)):'—'],['QB Hit',r.qb_hit==='1'?'Yes':'No'],['Scramble',r.qb_scramble==='1'?'Yes':'No'],['Success',r.success==='1'?'Yes':'No'],['xPass',na(r.xpass)!=null?fmtP(N(r.xpass)):'—']]);
+    // CPOE as % with 0 decimals
+    const cpoeVal = na(r.cpoe)!=null ? Math.round(parseFloat(r.cpoe))+'%' : '—';
+    // xPass → Expected Pass, Success → Successful Play?
+    b+=cards([
+      {v:naS(r.result_label),l:'Result',c:''},
+      {v:r.yards_gained||'0',l:'Yards',c:'gold'},
+      {v:na(r.epa)!=null?fmt2(N(r.epa)):'—',l:'EPA',c:N(r.epa)>=0?'green':'red'},
+      {v:na(r.air_yards)!=null?r.air_yards:'—',l:'Air Yards',c:'cyan'},
+      {v:na(r.yards_after_catch)!=null?r.yards_after_catch:'—',l:'YAC',c:''},
+      {v:na(r.cp)!=null?fmtP(N(r.cp)):'—',l:'Comp Prob',c:''}
+    ]);
+    b+=sec('Situation',[
+      ['Opponent',naS(r.defteam)],
+      ['Field Position',fldPos(r)],
+      ['Score Diff',naS(r.score_differential)],
+      ['Target',naS(r.receiver)],
+      ['Pass Location',titleCase(naS(r.pass_location))],
+      ['Pass Length',titleCase(naS(r.pass_length))]
+    ]);
+    b+=sec('Advanced',[
+      ['CPOE',cpoeVal],
+      ['QB EPA',na(r.qb_epa)!=null?fmt2(N(r.qb_epa)):'—'],
+      ['QB Hit',r.qb_hit==='1'?'Yes':'No'],
+      ['Scramble',r.qb_scramble==='1'?'Yes':'No'],
+      ['Successful Play?',r.success==='1'?'Yes':'No'],
+      ['Expected Pass',na(r.xpass)!=null?fmtP0(N(r.xpass)):'—']
+    ]);
   } else if (pos==='RB') {
-    b+=cards([{v:naS(r.result_label),l:'Result',c:''},{v:r.yards_gained||'0',l:'Yards',c:'gold'},{v:na(r.epa)!=null?fmt2(N(r.epa)):'—',l:'EPA',c:N(r.epa)>=0?'green':'red'},{v:naS(r.run_location),l:'Direction',c:''},{v:naS(r.run_gap),l:'Gap',c:''},{v:r.success==='1'?'Yes':'No',l:'Success',c:r.success==='1'?'green':''}]);
-    b+=sec('Situation',[['Opponent',naS(r.defteam)],['Field Position',fldPos(r)],['Score Diff',naS(r.score_differential)],['TFL',r.tackled_for_loss==='1'?'Yes':'No'],['Fumble',r.fumble==='1'?'Yes':'No']]);
-    b+=sec('Tackler',[['Primary',naS(r.tackler)],['Solo #1',naS(r.solo_tackle_1_player_name)],['Solo #2',naS(r.solo_tackle_2_player_name)],['Assist #1',naS(r.assist_tackle_1_player_name)]]);
+    b+=cards([
+      {v:naS(r.result_label),l:'Result',c:''},
+      {v:r.yards_gained||'0',l:'Yards',c:'gold'},
+      {v:na(r.epa)!=null?fmt2(N(r.epa)):'—',l:'EPA',c:N(r.epa)>=0?'green':'red'},
+      {v:titleCase(naS(r.run_location)),l:'Direction',c:''},
+      {v:titleCase(naS(r.run_gap)),l:'Gap',c:''},
+      {v:r.success==='1'?'Yes':'No',l:'Successful Play?',c:r.success==='1'?'green':''}
+    ]);
+    b+=sec('Situation',[
+      ['Opponent',naS(r.defteam)],
+      ['Field Position',fldPos(r)],
+      ['Score Diff',naS(r.score_differential)],
+      ['TFL',r.tackled_for_loss==='1'?'Yes':'No'],
+      ['Fumble',r.fumble==='1'?'Yes':'No']
+    ]);
+    b+=sec('Tackler',[
+      ['Primary',naS(r.tackler)],
+      ['Assist',naS(r.assist_tackle_1_player_name)]
+    ]);
   } else {
-    b+=cards([{v:naS(r.result_label),l:'Result',c:''},{v:r.yards_gained||'0',l:'Yards',c:'gold'},{v:na(r.epa)!=null?fmt2(N(r.epa)):'—',l:'EPA',c:N(r.epa)>=0?'green':'red'},{v:na(r.air_yards)!=null?r.air_yards:'—',l:'Air Yards',c:'cyan'},{v:na(r.yards_after_catch)!=null?r.yards_after_catch:'—',l:'YAC',c:'purple'},{v:na(r.cp)!=null?fmtP(N(r.cp)):'—',l:'Comp Prob',c:''}]);
-    b+=sec('Situation',[['Opponent',naS(r.defteam)],['Field Position',fldPos(r)],['QB',naS(r.passer)],['Pass Location',naS(r.pass_location)],['Pass Length',naS(r.pass_length)],['Score Diff',naS(r.score_differential)]]);
-    b+=sec('Advanced',[['CPOE',na(r.cpoe)!=null?r.cpoe+'%':'—'],['xYAC',na(r.xyac_mean_yardage)!=null?N(r.xyac_mean_yardage).toFixed(2):'—'],['xYAC Success',na(r.xyac_success)!=null?fmtP(N(r.xyac_success)):'—'],['xYAC 1st Down',na(r.xyac_fd)!=null?fmtP(N(r.xyac_fd)):'—'],['QB Hit',r.qb_hit==='1'?'Yes':'No'],['Defender',naS(r.defender)]]);
+    // WR/TE
+    const cpoeVal = na(r.cpoe)!=null ? Math.round(parseFloat(r.cpoe))+'%' : '—';
+    b+=cards([
+      {v:naS(r.result_label),l:'Result',c:''},
+      {v:r.yards_gained||'0',l:'Yards',c:'gold'},
+      {v:na(r.epa)!=null?fmt2(N(r.epa)):'—',l:'EPA',c:N(r.epa)>=0?'green':'red'},
+      {v:na(r.air_yards)!=null?r.air_yards:'—',l:'Air Yards',c:'cyan'},
+      {v:na(r.yards_after_catch)!=null?r.yards_after_catch:'—',l:'YAC',c:'purple'},
+      {v:na(r.cp)!=null?fmtP(N(r.cp)):'—',l:'Comp Prob',c:''}
+    ]);
+    b+=sec('Situation',[
+      ['Opponent',naS(r.defteam)],
+      ['Field Position',fldPos(r)],
+      ['QB',naS(r.passer)],
+      ['Pass Length',titleCase(naS(r.pass_length))],
+      ['Pass Location',titleCase(naS(r.pass_location))],
+      ['Score Diff',naS(r.score_differential)]
+    ]);
+    b+=sec('Advanced',[
+      ['CPOE',cpoeVal],
+      ['Expected YAC',na(r.xyac_mean_yardage)!=null?N(r.xyac_mean_yardage).toFixed(2):'—'],
+      ['Chance of 1st Down',na(r.xyac_fd)!=null?fmtP0(N(r.xyac_fd)):'—'],
+      ['QB Hit',r.qb_hit==='1'?'Yes':'No'],
+      ['Defender',naS(r.defender)]
+    ]);
   }
+
   document.getElementById('mB').innerHTML=b;
   document.getElementById('ov').classList.add('open');
 }
